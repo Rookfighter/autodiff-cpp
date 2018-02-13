@@ -172,7 +172,7 @@ namespace fad
     Num<T> exp(const Num<T> &n)
     {
         T val = std::exp(n.val());
-        T jac = n.jac() * std::exp(n.jac());
+        T jac = n.jac() * std::exp(n.val());
         return Num<T>(val, jac);
     }
 
