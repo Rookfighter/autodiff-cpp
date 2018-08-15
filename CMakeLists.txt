@@ -19,7 +19,7 @@ include_directories(
     "include"
     ${EIGEN3_INCLUDE_DIR}
     ${CATCH2_INCLUDE_DIR}
-    )
+)
 
 install(DIRECTORY include/adcpp DESTINATION include)
 
