@@ -10,192 +10,180 @@
 
 #include <cmath>
 
-namespace ad
+namespace fad
 {
     template<typename T>
-    class NumberF
+    class Number
     {
-    private:
-        T val_;
-        T grad_;
-
     public:
+        T value;
+        T gradient;
 
-        NumberF()
-        : val_(), grad_()
+        Number()
+        : value(0), gradient(0)
         { }
 
-        NumberF(const T val)
-        : val_(val), grad_()
+        Number(const T val)
+        : value(val), gradient(0)
         { }
 
-        NumberF(const T val, const T grad)
-        : val_(val), grad_(grad)
+        Number(const T val, const T grad)
+        : value(val), gradient(grad)
         { }
 
-        NumberF(const NumberF<T> &rhs)
-        : val_(rhs.val_), grad_(rhs.grad_)
+        Number(const Number<T> &rhs)
+        : value(rhs.value), gradient(rhs.gradient)
         { }
 
-        ~NumberF()
+        ~Number()
         { }
 
-        T value() const
+        Number<T> &operator+=(const Number<T> &rhs)
         {
-            return val_;
-        }
-
-        T gradient() const
-        {
-            return grad_;
-        }
-
-        NumberF<T> &operator+=(const NumberF<T> &rhs)
-        {
-            val_ += rhs.val_;
-            grad_ += rhs.grad_;
+            value += rhs.value;
+            gradient += rhs.gradient;
 
             return *this;
         }
 
-        NumberF<T> operator+(const NumberF<T> &rhs) const
+        Number<T> operator+(const Number<T> &rhs) const
         {
-            NumberF<T> result(*this);
+            Number<T> result(*this);
             result += rhs;
 
             return result;
         }
 
-        NumberF<T> &operator*=(const NumberF<T> &rhs)
+        Number<T> &operator*=(const Number<T> &rhs)
         {
-            val_ *= rhs.val_;
-            grad_ = rhs.val_ * grad_  + val_ * rhs.grad_;
+            value *= rhs.value;
+            gradient = rhs.value * gradient  + value * rhs.gradient;
 
             return *this;
         }
 
-        NumberF<T> operator*(const NumberF<T> &rhs) const
+        Number<T> operator*(const Number<T> &rhs) const
         {
-            NumberF<T> result(*this);
+            Number<T> result(*this);
             result *= rhs;
 
             return result;
         }
 
-        NumberF<T> &operator-=(const NumberF<T> &rhs)
+        Number<T> &operator-=(const Number<T> &rhs)
         {
-            val_ += -rhs;
+            value += -rhs;
 
             return *this;
         }
 
-        NumberF<T> operator-(const NumberF<T> &rhs) const
+        Number<T> operator-(const Number<T> &rhs) const
         {
-            NumberF<T> result(*this);
+            Number<T> result(*this);
             result -= rhs;
 
             return result;
         }
 
-        NumberF<T> &operator/=(const NumberF<T> &rhs)
+        Number<T> &operator/=(const Number<T> &rhs)
         {
-            val_ /= rhs.val_;
-            grad_ = (grad_ * rhs.val_ - rhs.grad_ * val_) / (rhs.val_ * rhs.val_);
+            value /= rhs.value;
+            gradient = (gradient * rhs.value - rhs.gradient * value) / (rhs.value * rhs.value);
 
             return *this;
         }
 
-        NumberF<T> operator/(const NumberF<T> &rhs) const
+        Number<T> operator/(const Number<T> &rhs) const
         {
-            NumberF<T> result(*this);
+            Number<T> result(*this);
             result /= rhs;
 
             return result;
         }
 
-        NumberF<T> &operator*=(const T fac)
+        Number<T> &operator*=(const T fac)
         {
-            val_ *= fac;
-            grad_ *= fac;
+            value *= fac;
+            gradient *= fac;
 
             return *this;
         }
 
-        NumberF<T> operator*(const T fac) const
+        Number<T> operator*(const T fac) const
         {
-            NumberF<T> result(*this);
+            Number<T> result(*this);
             result *= fac;
 
             return result;
         }
 
-        NumberF<T> &operator/=(const T fac)
+        Number<T> &operator/=(const T fac)
         {
-            val_ /= fac;
-            grad_ /= fac;
+            value /= fac;
+            gradient /= fac;
 
             return *this;
         }
 
-        NumberF<T> operator/(const T fac) const
+        Number<T> operator/(const T fac) const
         {
-            NumberF<T> result(*this);
+            Number<T> result(*this);
             result /= fac;
 
             return result;
         }
 
-        NumberF<T> operator-() const
+        Number<T> operator-() const
         {
-            return NumberF<T>(-val_, -grad_);
+            return Number<T>(-value, -gradient);
         }
     };
 
     template<typename T>
-    NumberF<T> operator*(const T lhs, const NumberF<T> &rhs)
+    Number<T> operator*(const T lhs, const Number<T> &rhs)
     {
         return rhs * lhs;
     }
 
     template<typename T>
-    NumberF<T> operator/(const T lhs, const NumberF<T> &rhs)
+    Number<T> operator/(const T lhs, const Number<T> &rhs)
     {
-        return NumberF<T>(lhs) / rhs;
+        return Number<T>(lhs) / rhs;
     }
 
     template<typename T>
-    NumberF<T> sin(const NumberF<T> &n)
+    Number<T> sin(const Number<T> &n)
     {
-        T val = std::sin(n.val());
-        T grad = n.grad() * std::cos(n.val());
+        T val = std::sin(n.value);
+        T grad = n.gradient * std::cos(n.value);
     }
 
     template<typename T>
-    NumberF<T> cos(const NumberF<T> &n)
+    Number<T> cos(const Number<T> &n)
     {
-        T val = std::cos(n.val());
-        T grad = n.grad() * -std::sin(n.val());
-        return NumberF<T>(val, grad);
+        T val = std::cos(n.value());
+        T grad = n.gradient * -std::sin(n.value);
+        return Number<T>(val, grad);
     }
 
     template<typename T>
-    NumberF<T> exp(const NumberF<T> &n)
+    Number<T> exp(const Number<T> &n)
     {
-        T val = std::exp(n.val());
-        T grad = n.grad() * std::exp(n.val());
-        return NumberF<T>(val, grad);
+        T val = std::exp(n.value);
+        T grad = n.gradient * std::exp(n.value);
+        return Number<T>(val, grad);
     }
 
     template<typename T>
-    NumberF<T> pow(const NumberF<T>& n, const unsigned int exponent)
+    Number<T> pow(const Number<T>& n, const unsigned int exponent)
     {
-        T val = std::pow(n.val(), exponent);
-        T grad = n.grad() * exponent * std::pow(n.val(), exponent-1);
-        return NumberF<T>(val, grad);
+        T val = std::pow(n.value, exponent);
+        T grad = n.gradient * exponent * std::pow(n.value, exponent-1);
+        return Number<T>(val, grad);
     }
 
-    typedef NumberF<float> FloatF;
-    typedef NumberF<double> DoubleF;
+    typedef Number<float> Float;
+    typedef Number<double> Double;
 }
 
 #endif
