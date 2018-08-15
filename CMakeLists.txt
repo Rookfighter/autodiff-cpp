@@ -21,5 +21,8 @@ include_directories(
     ${CATCH2_INCLUDE_DIR}
     )
 
-
 install(DIRECTORY include/adcpp DESTINATION include)
+
+# Compile tests
+file(GLOB TEST_SRC test/*.cpp)
+add_executable(run_tests ${TEST_SRC})
