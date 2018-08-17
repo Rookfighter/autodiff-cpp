@@ -38,6 +38,22 @@ namespace fad
         ~Number()
         { }
 
+        Number<T> &operator=(const Number<T> &rhs)
+        {
+            value = rhs.value;
+            gradient = rhs.gradient;
+
+            return *this;
+        }
+
+        Number<T> &operator=(const T rhs)
+        {
+            value = rhs;
+            gradient = 0;
+
+            return *this;
+        }
+
         Number<T> &operator+=(const Number<T> &rhs)
         {
             value += rhs.value;
@@ -140,6 +156,18 @@ namespace fad
     };
 
     template<typename T>
+    Number<T> operator-(const T lhs, const Number<T> &rhs)
+    {
+        return lhs + (-rhs);
+    }
+
+    template<typename T>
+    Number<T> operator+(const T lhs, const Number<T> &rhs)
+    {
+        return rhs + lhs;
+    }
+
+    template<typename T>
     Number<T> operator*(const T lhs, const Number<T> &rhs)
     {
         return rhs * lhs;
@@ -156,12 +184,13 @@ namespace fad
     {
         T val = std::sin(n.value);
         T grad = n.gradient * std::cos(n.value);
+        return Number<T>(val, grad);
     }
 
     template<typename T>
     Number<T> cos(const Number<T> &n)
     {
-        T val = std::cos(n.value());
+        T val = std::cos(n.value);
         T grad = n.gradient * -std::sin(n.value);
         return Number<T>(val, grad);
     }
@@ -182,8 +211,44 @@ namespace fad
         return Number<T>(val, grad);
     }
 
-    typedef Number<float> Float;
-    typedef Number<double> Double;
+    #define FAD_INSTANTIATE(t,n)                                            \
+        typedef Number<t> n;                                                \
+        inline n operator-(const t lhs, const n &rhs)                       \
+        {                                                                   \
+            return operator-<t>(lhs, rhs);                                  \
+        }                                                                   \
+        inline n operator+(const t lhs, const n &rhs)                       \
+        {                                                                   \
+            return operator+<t>(lhs, rhs);                                  \
+        }                                                                   \
+        inline n operator*(const t lhs, const n &rhs)                       \
+        {                                                                   \
+            return operator*<t>(lhs, rhs);                                  \
+        }                                                                   \
+        inline n operator/(const t lhs, const n &rhs)                       \
+        {                                                                   \
+            return operator/<t>(lhs, rhs);                                  \
+        }                                                                   \
+        inline n sin(const n& x)                                            \
+        {                                                                   \
+            return sin<t>(x);                                               \
+        }                                                                   \
+        inline n cos(const n& x)                                            \
+        {                                                                   \
+            return cos<t>(x);                                               \
+        }                                                                   \
+        inline n exp(const n& x)                                            \
+        {                                                                   \
+            return exp<t>(x);                                               \
+        }                                                                   \
+        inline n pow(const n& x, const unsigned int exponent)               \
+        {                                                                   \
+            return pow<t>(x, exponent);                                     \
+        }
+
+
+    FAD_INSTANTIATE(double, Double)
+    FAD_INSTANTIATE(float, Float)
 }
 
 #endif
