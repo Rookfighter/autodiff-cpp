@@ -211,40 +211,46 @@ namespace fad
         return Number<T>(val, grad);
     }
 
+    template<typename T>
+    Number<T> sqrt(const Number<T>& n)
+    {
+        T val = std::sqrt(n.value);
+        T grad = n.gradient / (2 * val);
+        return Number<T>(val, grad);
+    }
+
+    template<typename T>
+    const Number<T>& conj(const Number<T>& x)  { return x; }
+    template<typename T>
+    const Number<T>& real(const Number<T>& x)  { return x; }
+    template<typename T>
+    Number<T> imag(const Number<T>&)    { return Number<T>(); }
+    template<typename T>
+    Number<T> abs(const Number<T>&  x)  { return Number<T>(std::abs(x.value), std::abs(x.value)); }
+    template<typename T>
+    Number<T> abs2(const Number<T>& x)  { return x * x; }
+
     #define FAD_INSTANTIATE(t,n)                                            \
         typedef Number<t> n;                                                \
         inline n operator-(const t lhs, const n &rhs)                       \
-        {                                                                   \
-            return operator-<t>(lhs, rhs);                                  \
-        }                                                                   \
+        { return operator-<t>(lhs, rhs); }                                  \
         inline n operator+(const t lhs, const n &rhs)                       \
-        {                                                                   \
-            return operator+<t>(lhs, rhs);                                  \
-        }                                                                   \
+        { return operator+<t>(lhs, rhs); }                                  \
         inline n operator*(const t lhs, const n &rhs)                       \
-        {                                                                   \
-            return operator*<t>(lhs, rhs);                                  \
-        }                                                                   \
+        { return operator*<t>(lhs, rhs); }                                  \
         inline n operator/(const t lhs, const n &rhs)                       \
-        {                                                                   \
-            return operator/<t>(lhs, rhs);                                  \
-        }                                                                   \
-        inline n sin(const n& x)                                            \
-        {                                                                   \
-            return sin<t>(x);                                               \
-        }                                                                   \
-        inline n cos(const n& x)                                            \
-        {                                                                   \
-            return cos<t>(x);                                               \
-        }                                                                   \
-        inline n exp(const n& x)                                            \
-        {                                                                   \
-            return exp<t>(x);                                               \
-        }                                                                   \
+        { return operator/<t>(lhs, rhs); }                                  \
+        inline n sin(const n& x) { return sin<t>(x); }                      \
+        inline n cos(const n& x) { return cos<t>(x); }                      \
+        inline n exp(const n& x) { return exp<t>(x); }                      \
         inline n pow(const n& x, const unsigned int exponent)               \
-        {                                                                   \
-            return pow<t>(x, exponent);                                     \
-        }
+        { return pow<t>(x, exponent); }                                     \
+        inline n sqrt(const n& x) { return sqrt<t>(x); }                    \
+        inline const n& conj(const n& x)  { return conj<t>(x); }            \
+        inline const n& real(const n& x)  { return real<t>(x); }            \
+        inline n imag(const n& x)  { return imag<t>(x); }                   \
+        inline n abs(const n& x)  { return abs<t>(x); }                     \
+        inline n abs2(const n& x)  { return abs2<t>(x); }
 
 
     FAD_INSTANTIATE(double, Double)
