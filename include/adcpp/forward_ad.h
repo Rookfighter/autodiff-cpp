@@ -206,6 +206,8 @@ namespace fad
     template<typename T>
     Number<T> pow(const Number<T>& n, const unsigned int exponent)
     {
+        if(exponent == 0)
+            return Number<T>(1, 0);
         T val = std::pow(n.value, exponent);
         T grad = n.gradient * exponent * std::pow(n.value, exponent-1);
         return Number<T>(val, grad);
