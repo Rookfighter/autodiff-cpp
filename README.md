@@ -39,6 +39,27 @@ If your function produces ```m``` output arguments, then the runtime behavior
 is ```O(m)```. Basically the function has to be evaluated ```m``` times to
 calculate the full gradient / Jacobian.
 
+Both modes can compute the following arithmetic expressions:
+
+* addition (```òperator+```)
+* subtraction (```òperator-```)
+* multiplication (```òperator*```)
+* division (```òperator/```)
+* ```sin```
+* ```cos```
+* ```tan```
+* ```asin```
+* ```acos```
+* ```atan```
+* ```atan2```
+* ```sqrt```
+* ```exp```
+* ```pow```
+* ```log```
+* ```log2```
+* ```abs```
+* ```abs2```
+
 ### Foward Mode
 
 ```cpp
