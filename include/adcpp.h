@@ -274,14 +274,14 @@ namespace bwd
         struct Node
         {
             Scalar weight;
-            Number<Scalar> term;
+            Number<Scalar> var;
 
             Node()
                 : Node(0, Number<Scalar>())
             { }
 
-            Node(const Scalar weight, const Number<Scalar> &term)
-                : weight(weight), term(term)
+            Node(const Scalar weight, const Number<Scalar> &var)
+                : weight(weight), var(var)
             { }
 
         };
@@ -291,34 +291,27 @@ namespace bwd
             typedef std::shared_ptr<Data> Ptr;
 
             Data()
-                : Data(0, 0)
+                : Data(0)
             { }
 
             Data(const Scalar value)
-                : Data(value, 0)
-            { }
-
-            Data(const Scalar value, const Scalar gradient)
-                : value(value), gradient(gradient), children()
+                : value(value), children(), gradient(0), fixedGradient(false)
             { }
 
             Scalar value;
-            Scalar gradient;
             std::vector<Node> children;
+            Scalar gradient;
+            bool fixedGradient;
         };
 
         typename Data::Ptr data_;
     public:
         Number()
-            : Number(0, 0)
+            : Number(0)
         { }
 
         Number(const Scalar value)
-            : Number(value, 0)
-        { }
-
-        Number(const Scalar value, const Scalar gradient)
-        : data_(new Data(value, gradient))
+        : data_(new Data(value))
         { }
 
         Number(const Number<Scalar> &rhs)
@@ -328,10 +321,43 @@ namespace bwd
         ~Number()
         { }
 
+        Scalar value() const
+        {
+            return data_->value;
+        }
+
+        Scalar gradient() const
+        {
+            if(data_->gradient != 0)
+                return data_->gradient;
+
+            Scalar grad = 0;
+            for(size_t i = 0; i < data_->children.size(); ++i)
+                grad += data_->children[i].weight * data_->children[i].var.gradient();
+
+            return grad;
+        }
+
+        void setGradient(const Scalar grad)
+        {
+            data_->fixedGradient = true;
+            data_->gradient = grad;
+        }
+
+        void unsetGradient()
+        {
+            data_->fixedGradient = false;
+            data_->gradient = 0;
+        }
+
+        void addChild(const Scalar weight, const Number<Scalar> &val) const
+        {
+            data_->children.push_back({weight, val});
+        }
+
         Number<Scalar> &operator=(const Number<Scalar> &rhs)
         {
             data_ = rhs.data_;
-
             return *this;
         }
 
@@ -347,61 +373,61 @@ namespace bwd
             return *this;
         }
 
-        Number<Scalar> operator+(Number<Scalar> &rhs)
+        Number<Scalar> operator+(const Number<Scalar> &rhs) const
         {
             Number<Scalar> result;
 
             result.data_->value = data_->value + rhs.data_->value;
 
-            data_->children.push_back({1, result});
-            rhs.data_->children.push_back({1, result});
+            addChild(1, result);
+            rhs.addChild(1, result);
 
             return result;
         }
 
-        Number<Scalar> &operator*=(Number<Scalar> &rhs)
+        Number<Scalar> &operator*=(const Number<Scalar> &rhs)
         {
             *this = *this * rhs;
             return *this;
         }
 
-        Number<Scalar> operator*(Number<Scalar> &rhs)
+        Number<Scalar> operator*(const Number<Scalar> &rhs) const
         {
             Number<Scalar> result;
 
             result.data_->value = data_->value * rhs.data_->value;
 
-            data_->children.push_back({rhs.data_->value, result});
-            rhs.data_->children.push_back({data_->value, result});
+            addChild(rhs.data_->value, result);
+            rhs.addChild(data_->value, result);
 
             return result;
         }
 
-        Number<Scalar> &operator-=(Number<Scalar> &rhs)
+        Number<Scalar> &operator-=(const Number<Scalar> &rhs)
         {
             *this = *this - rhs;
             return *this;
         }
 
-        Number<Scalar> operator-(Number<Scalar> &rhs)
+        Number<Scalar> operator-(const Number<Scalar> &rhs) const
         {
             Number<Scalar> result;
 
             result.data_->value = data_->value - rhs.data_->value;
 
-            data_->children.push_back({1, result});
-            rhs.data_->children.push_back({-1, result});
+            addChild(1, result);
+            rhs.addChild(-1, result);
 
             return result;
         }
 
-        Number<Scalar> &operator/=(Number<Scalar> &rhs)
+        Number<Scalar> &operator/=(const Number<Scalar> &rhs)
         {
             *this = *this / rhs;
             return *this;
         }
 
-        Number<Scalar> operator/(Number<Scalar> &rhs)
+        Number<Scalar> operator/(const Number<Scalar> &rhs) const
         {
             Number<Scalar> result;
 
@@ -410,95 +436,208 @@ namespace bwd
             Scalar gradLhs = 1 / rhs.data_->value;
             Scalar gradRhs = -data_->value / (rhs.data_->value * rhs.data_->value);
 
-            data_->children.push_back({gradLhs, result});
-            rhs.data_->children.push_back({gradRhs, result});
+            addChild(gradLhs, result);
+            rhs.addChild(gradRhs, result);
 
             return result;
         }
 
-        Number<Scalar> operator-()
+        Number<Scalar> operator-() const
         {
             Number<Scalar> result;
 
             result.data_->value = -data_->value;
-            data_->children.push_back({-1, result});
+            addChild(-1, result);
 
             return result;
         }
-
-        Number<Scalar> sin()
-        {
-            Number<Scalar> result;
-            result.data_->value = std::sin(data_->value);
-
-            data_->children.push_back({std::cos(data_->value), result});
-
-            return result;
-        }
-
-        Number<Scalar> cos()
-        {
-            Number<Scalar> result;
-            result.data_->value = std::cos(data_->value);
-
-            data_->children.push_back({-std::sin(data_->value), result});
-
-            return result;
-        }
-
-        // Number<Scalar> exp() const
-        // {
-        //     Scalar value = std::exp<Scalar>(value_);
-        //     Scalar gradient = gradient_ * std::exp<Scalar>(value_);
-        //     return Number<Scalar>(value, gradient);
-        // }
-        //
-        // Number<Scalar> pow(const Scalar exponent) const
-        // {
-        //     Scalar value = std::pow(value_, exponent);
-        //     Scalar gradient = gradient_ * exponent * std::pow(value_, exponent - 1);
-        //     return Number<Scalar>(value, gradient);
-        // }
-        //
-        // Number<Scalar> pow(const int exponent) const
-        // {
-        //     Scalar value = std::pow(value_, exponent);
-        //     Scalar gradient = gradient_ * exponent * std::pow(value_, exponent - 1);
-        //     return Number<Scalar>(value, gradient);
-        // }
-        //
-        // Number<Scalar> sqrt() const
-        // {
-        //     Scalar value = std::sqrt(value_);
-        //     Scalar gradient = gradient_ / (2 * value);
-        //     return Number<Scalar>(value, gradient);
-        // }
-        //
-        // const Number<Scalar>& conj() const
-        // {
-        //     return *this;
-        // }
-        //
-        // const Number<Scalar>& real() const
-        // {
-        //     return *this;
-        // }
-        //
-        // Number<Scalar> imag() const
-        // {
-        //     return Number<Scalar>(0, 0);
-        // }
-        //
-        // Number<Scalar> abs() const
-        // {
-        //     return Number<Scalar>(std::abs(value_), std::abs(gradient_));
-        // }
-        //
-        // Number<Scalar> abs2() const
-        // {
-        //     return x * x;
-        // }
     };
+
+    template<typename Scalar>
+    Number<Scalar> sin(const Number<Scalar> &val)
+    {
+        Scalar value = std::sin(val.value());
+        Scalar gradient = std::cos(val.value());
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> asin(const Number<Scalar> &val)
+    {
+        Scalar value = std::asin(val.value());
+        Scalar gradient = 1 / std::sqrt(1 - val.value() * val.value());
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> cos(const Number<Scalar> &val)
+    {
+        Scalar value = std::cos(val.value());
+        Scalar gradient = -std::sin(val.value());
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> acos(const Number<Scalar> &val)
+    {
+        Scalar value = std::acos(val.value());
+        Scalar gradient = -1 / std::sqrt(1 - val.value() * val.value());
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> tan(const Number<Scalar> &val)
+    {
+        Scalar value = std::tan(val.value());
+        Scalar c = std::cos(val.value());
+        Scalar gradient = 1 / (c * c);
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> atan(const Number<Scalar> &val)
+    {
+        Scalar value = std::atan(val.value());
+        Scalar gradient = 1 / (1 + val.value() * val.value());
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> atan2(const Number<Scalar> &y, const Number<Scalar> &x)
+    {
+        Scalar value = std::atan2(y.value(), x.value());
+        Scalar denom = x.value() * x.value() + y.value() * y.value();
+        Scalar gradRhs = y.value() / denom;
+        Scalar gradLhs = x.value() / denom;
+
+        Number<Scalar> result(value);
+
+        x.addChild(gradRhs, result);
+        y.addChild(gradLhs, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> exp(const Number<Scalar> &val)
+    {
+        Scalar value = std::exp(val.value());
+        Scalar gradient = std::exp(val.value());
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> pow(const Number<Scalar> &val, const Scalar exponent)
+    {
+        Scalar value = std::pow(val.value(), exponent);
+        Scalar gradient = exponent * std::pow(val.value(), exponent - 1);
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> pow(const Number<Scalar> &val, const int exponent)
+    {
+        Scalar value = std::pow(val.value(), exponent);
+        Scalar gradient = exponent * std::pow(val.value(), exponent - 1);
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> sqrt(const Number<Scalar> &val)
+    {
+        Scalar value = std::sqrt(val.value());
+        Scalar gradient = 1 / (2 * value);
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    const Number<Scalar>& conj(const Number<Scalar> &val)
+    {
+        return val;
+    }
+
+    template<typename Scalar>
+    const Number<Scalar>& real(const Number<Scalar> &val)
+    {
+        return val;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> imag(const Number<Scalar> &val)
+    {
+        Number<Scalar> result(0);
+        val.addChild(0, result);
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> abs(const Number<Scalar> &val)
+    {
+        Scalar value = std::abs(val.value());
+        Scalar gradient = 1;
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> abs2(const Number<Scalar> &val)
+    {
+        return val * val;
+    }
 
     typedef Number<double> Double;
     typedef Number<float> Float;
