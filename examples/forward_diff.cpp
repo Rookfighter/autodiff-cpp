@@ -7,12 +7,14 @@
  #include <iostream>
  #include <adcpp.h>
 
+ using namespace adcpp;
+
  // define your function with adcpp numbers
- static adcpp::fwd::Double myfunc(const adcpp::fwd::Double &x,
-     const adcpp::fwd::Double &y)
+ static fwd::Double myfunc(const fwd::Double &x,
+     const fwd::Double &y)
  {
      // constants have to be wrapped in adcpp numbers
-     return adcpp::fwd::Double(2) * (y * x.sin() + (x / y).exp()).pow(2);
+     return fwd::Double(2) * fwd::pow(y * fwd::sin(x) + fwd::exp(x / y), 2);
  }
 
  int main(const int argc, const char **argv)
@@ -32,17 +34,17 @@
      // gradient.
      // Set the gradient of x to 1, so we can calculate the partial derivative
      // of our function w.r.t. to x.
-     adcpp::fwd::Double x = adcpp::fwd::Double(xval, 1);
-     adcpp::fwd::Double y = adcpp::fwd::Double(yval, 0);
+     fwd::Double x = fwd::Double(xval, 1);
+     fwd::Double y = fwd::Double(yval, 0);
      // Evaluate the function with respect to x.
-     adcpp::fwd::Double fx = myfunc(x, y);
+     fwd::Double fx = myfunc(x, y);
 
      // Set the gradient of y to 1, so we can calculate the partial derivative
      // of our function w.r.t. to y.
-     x = adcpp::fwd::Double(xval, 0);
-     y = adcpp::fwd::Double(yval, 1);
+     x = fwd::Double(xval, 0);
+     y = fwd::Double(yval, 1);
      // Evaluate the function with respect to y.
-     adcpp::fwd::Double fy = myfunc(x, y);
+     fwd::Double fy = myfunc(x, y);
 
      // Print the results.
      // value() and gradient() are accessors for the gradient and computed value
