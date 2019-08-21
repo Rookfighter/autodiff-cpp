@@ -4,8 +4,9 @@
  *     Author: Fabian Meyer
  */
 
-#include <iostream>
 #include <adcpp.h>
+#include <iostream>
+#include <string>
 
 using namespace adcpp;
 
