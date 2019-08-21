@@ -9,7 +9,7 @@
 
 using namespace adcpp;
 
-TEST_CASE("algorithmic differentiation forward mode")
+TEST_CASE("forward algorithmic differentiation")
 {
     double eps = 1e-6;
     SECTION("add constant")
