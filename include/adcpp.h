@@ -147,10 +147,55 @@ namespace fwd
     }
 
     template<typename Scalar>
+    Number<Scalar> asin(const Number<Scalar> &val)
+    {
+        Scalar value = std::asin(val.value());
+        Scalar gradient = val.gradient() * 1 / std::sqrt(1 - val.value() * val.value());
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
     Number<Scalar> cos(const Number<Scalar> &val)
     {
         Scalar value = std::cos(val.value());
         Scalar gradient = val.gradient() * -std::sin(val.value());
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> acos(const Number<Scalar> &val)
+    {
+        Scalar value = std::acos(val.value());
+        Scalar gradient = val.gradient() * -1 / std::sqrt(1 - val.value() * val.value());
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> tan(const Number<Scalar> &val)
+    {
+        Scalar value = std::tan(val.value());
+        Scalar c = std::cos(val.value());
+        Scalar gradient = val.gradient() * 1 / (c * c);
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> atan(const Number<Scalar> &val)
+    {
+        Scalar value = std::atan(val.value());
+        Scalar gradient = val.gradient() * 1 / (1 + val.value() * val.value());
+
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> atan2(const Number<Scalar> &y, const Number<Scalar> &x)
+    {
+        Scalar value = std::atan2(y.value(), x.value());
+        Scalar denom = x.value() * x.value() + y.value() * y.value();
+        Scalar gradient = x.gradient() * y.value() / denom +
+            y.gradient() * x.value() / denom;
+
         return Number<Scalar>(value, gradient);
     }
 
