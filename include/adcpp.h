@@ -136,74 +136,85 @@ namespace fwd
         {
             return Number<Scalar>(-value_, -gradient_);
         }
-
-        Number<Scalar> sin() const
-        {
-            Scalar value = std::sin(value_);
-            Scalar gradient = gradient_ * std::cos(value_);
-            return Number<Scalar>(value, gradient);
-        }
-
-        Number<Scalar> cos() const
-        {
-            Scalar value = std::cos(value_);
-            Scalar gradient = gradient_ * -std::sin(value_);
-            return Number<Scalar>(value, gradient);
-        }
-
-        Number<Scalar> exp() const
-        {
-            Scalar value = std::exp(value_);
-            Scalar gradient = gradient_ * std::exp(value_);
-            return Number<Scalar>(value, gradient);
-        }
-
-        Number<Scalar> pow(const Scalar exponent) const
-        {
-            Scalar value = std::pow(value_, exponent);
-            Scalar gradient = gradient_ * exponent * std::pow(value_, exponent - 1);
-            return Number<Scalar>(value, gradient);
-        }
-
-        Number<Scalar> pow(const int exponent) const
-        {
-            Scalar value = std::pow(value_, exponent);
-            Scalar gradient = gradient_ * exponent * std::pow(value_, exponent - 1);
-            return Number<Scalar>(value, gradient);
-        }
-
-        Number<Scalar> sqrt() const
-        {
-            Scalar value = std::sqrt(value_);
-            Scalar gradient = gradient_ / (2 * value);
-            return Number<Scalar>(value, gradient);
-        }
-
-        const Number<Scalar>& conj() const
-        {
-            return *this;
-        }
-
-        const Number<Scalar>& real() const
-        {
-            return *this;
-        }
-
-        Number<Scalar> imag() const
-        {
-            return Number<Scalar>(0, 0);
-        }
-
-        Number<Scalar> abs() const
-        {
-            return Number<Scalar>(std::abs(value_), std::abs(gradient_));
-        }
-
-        Number<Scalar> abs2() const
-        {
-            return (*this) * (*this);
-        }
     };
+
+    template<typename Scalar>
+    Number<Scalar> sin(const Number<Scalar> &val)
+    {
+        Scalar value = std::sin(val.value());
+        Scalar gradient = val.gradient() * std::cos(val.value());
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> cos(const Number<Scalar> &val)
+    {
+        Scalar value = std::cos(val.value());
+        Scalar gradient = val.gradient() * -std::sin(val.value());
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> exp(const Number<Scalar> &val)
+    {
+        Scalar value = std::exp(val.value());
+        Scalar gradient = val.gradient() * std::exp(val.value());
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> pow(const Number<Scalar> &val, const Scalar exponent)
+    {
+        Scalar value = std::pow(val.value(), exponent);
+        Scalar gradient = val.gradient() * exponent * std::pow(val.value(), exponent - 1);
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> pow(const Number<Scalar> &val, const int exponent)
+    {
+        Scalar value = std::pow(val.value(), exponent);
+        Scalar gradient = val.gradient() * exponent * std::pow(val.value(), exponent - 1);
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> sqrt(const Number<Scalar> &val)
+    {
+        Scalar value = std::sqrt(val.value());
+        Scalar gradient = val.gradient() / (2 * value);
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    const Number<Scalar>& conj(const Number<Scalar> &val)
+    {
+        return val;
+    }
+
+    template<typename Scalar>
+    const Number<Scalar>& real(const Number<Scalar> &val)
+    {
+        return val;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> imag(const Number<Scalar> &val)
+    {
+        return Number<Scalar>(0, 0);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> abs(const Number<Scalar> &val)
+    {
+        return Number<Scalar>(std::abs(val.value()), std::abs(val.gradient()));
+    }
+
+    template<typename Scalar>
+    Number<Scalar> abs2(const Number<Scalar> &val)
+    {
+        return val * val;
+    }
 
     typedef Number<double> Double;
     typedef Number<float> Float;
