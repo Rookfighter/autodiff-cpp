@@ -8,20 +8,20 @@
 #include <catch2/catch.hpp>
 #include <adcpp.h>
 
-using namespace adcpp::fwd;
+using namespace adcpp;
 
 TEST_CASE("algorithmic differentiation forward mode")
 {
     double eps = 1e-6;
     SECTION("add constant")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double c = 2;
 
         double valExp = 5;
         double gradExp = 1;
 
-        Double f = Double(c) + x;
+        fwd::Double f = fwd::Double(c) + x;
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -29,13 +29,13 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("multiply constant")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double c = 2;
 
         double valExp = c * x.value();
         double gradExp = c;
 
-        Double f = Double(c) * x;
+        fwd::Double f = fwd::Double(c) * x;
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -43,13 +43,13 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("divide constant")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double c = 2;
 
         double valExp = c / x.value();
         double gradExp = -c / (x.value() * x.value());
 
-        Double f = Double(c) / x;
+        fwd::Double f = fwd::Double(c) / x;
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -57,13 +57,13 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("divide by constant")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double c = 2;
 
         double valExp = x.value() / c;
         double gradExp = 1 / c;
 
-        Double f = x / Double(c);
+        fwd::Double f = x / fwd::Double(c);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -71,11 +71,11 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("sine")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double valExp = std::sin(x.value());
         double gradExp = std::cos(x.value());
 
-        Double f = x.sin();
+        fwd::Double f = fwd::sin(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -83,11 +83,11 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("cosine")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double valExp = std::cos(x.value());
         double gradExp = -std::sin(x.value());
 
-        Double f = x.cos();
+        fwd::Double f = fwd::cos(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -95,11 +95,11 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("square root")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double valExp = std::sqrt(x.value());
         double gradExp = 0.5 / std::sqrt(x.value());
 
-        Double f = x.sqrt();
+        fwd::Double f = fwd::sqrt(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -107,11 +107,11 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("exponential")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double valExp = std::exp(x.value());
         double gradExp = std::exp(x.value());
 
-        Double f = x.exp();
+        fwd::Double f = fwd::exp(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -119,11 +119,11 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("power")
     {
-        Double x(3, 1);
+        fwd::Double x(3, 1);
         double valExp = std::pow(x.value(), 2.3);
         double gradExp = 2.3 * std::pow(x.value(), 1.3);
 
-        Double f = x.pow(2.3);
+        fwd::Double f = fwd::pow(x, 2.3);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -131,11 +131,11 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("abs")
     {
-        Double x(-2, 1);
+        fwd::Double x(-2, 1);
         double valExp = std::abs(x.value());
         double gradExp = 1;
 
-        Double f = x.abs();
+        fwd::Double f = fwd::abs(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -143,11 +143,11 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("abs2")
     {
-        Double x(-2, 1);
+        fwd::Double x(-2, 1);
         double valExp = x.value() * x.value();
         double gradExp = 2 * x.value();
 
-        Double f = x.abs2();
+        fwd::Double f = fwd::abs2(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
@@ -155,18 +155,18 @@ TEST_CASE("algorithmic differentiation forward mode")
 
     SECTION("multiple variables")
     {
-        Double x(3, 1);
-        Double y(2, 0);
+        fwd::Double x(3, 1);
+        fwd::Double y(2, 0);
 
         double valExp = std::exp(x.value() + y.value() / x.value());
 
         double gradXExp = (1 - y.value() / (x.value() * x.value())) * valExp;
-        Double fx = (x + y / x).exp();
+        fwd::Double fx = fwd::exp(x + y / x);
 
-        x = Double(3, 0);
-        y = Double(2, 1);
+        x = fwd::Double(3, 0);
+        y = fwd::Double(2, 1);
         double gradYExp = (1 / x.value()) * valExp;
-        Double fy = (x + y / x).exp();
+        fwd::Double fy = fwd::exp(x + y / x);
 
         REQUIRE(Approx(valExp).margin(eps) == fx.value());
         REQUIRE(Approx(valExp).margin(eps) == fy.value());
