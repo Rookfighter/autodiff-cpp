@@ -234,6 +234,32 @@ TEST_CASE("backward algorithmic differentiation")
         REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
     }
 
+    SECTION("log")
+    {
+        bwd::Double x(3);
+        double valExp = std::log(x.value());
+        double gradExp = 1 / x.value();
+
+        bwd::Double f = bwd::log(x);
+        f.setGradient(1);
+
+        REQUIRE(Approx(valExp).margin(eps) == f.value());
+        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+    }
+
+    SECTION("log2")
+    {
+        bwd::Double x(3);
+        double valExp = std::log2(x.value());
+        double gradExp = 1 / (x.value() * std::log(2));
+
+        bwd::Double f = bwd::log2(x);
+        f.setGradient(1);
+
+        REQUIRE(Approx(valExp).margin(eps) == f.value());
+        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+    }
+
     SECTION("multiple variables")
     {
         bwd::Double x(3);

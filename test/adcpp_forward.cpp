@@ -225,6 +225,30 @@ TEST_CASE("algorithmic differentiation forward mode")
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
     }
 
+    SECTION("log")
+    {
+        fwd::Double x(3, 1);
+        double valExp = std::log(x.value());
+        double gradExp = 1 / x.value();
+
+        fwd::Double f = fwd::log(x);
+
+        REQUIRE(Approx(valExp).margin(eps) == f.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+    }
+
+    SECTION("log2")
+    {
+        fwd::Double x(3, 1);
+        double valExp = std::log2(x.value());
+        double gradExp = 1 / (x.value() * std::log(2));
+
+        fwd::Double f = fwd::log2(x);
+
+        REQUIRE(Approx(valExp).margin(eps) == f.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+    }
+
     SECTION("multiple variables")
     {
         fwd::Double x(3, 1);
