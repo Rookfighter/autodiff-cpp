@@ -18,11 +18,17 @@ add_subdirectory(dep)
 include_directories(
     "include"
     ${EIGEN3_INCLUDE_DIR}
-    ${CATCH2_INCLUDE_DIR}
 )
 
-install(DIRECTORY include/adcpp DESTINATION include)
+install(FILES "include/adcpp.h"
+    DESTINATION "include")
 
-# Compile tests
-file(GLOB TEST_SRC test/*.cpp)
-add_executable(run_tests ${TEST_SRC})
+if(${BUILD_EXAMPLES})
+    # Compile examples
+    add_subdirectory(examples)
+endif(${BUILD_EXAMPLES})
+
+if(${BUILD_TESTS})
+    # Compile examples
+    add_subdirectory(test)
+endif(${BUILD_TESTS})
