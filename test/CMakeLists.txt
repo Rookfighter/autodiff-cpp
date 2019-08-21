@@ -13,6 +13,8 @@ set(TEST_SRC
 
     "adcpp_backward.cpp"
     "adcpp_forward.cpp"
+
+    "adcpp_eigen_forward.cpp"
 )
 
 add_executable(run_tests ${TEST_SRC})
