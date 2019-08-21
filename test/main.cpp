@@ -1,9 +1,8 @@
-/*
- * main.cpp
+/* main.cpp
  *
- *  Created on: 18 Jun 2018
+ *  Created on: 21 Aug 2019
  *      Author: Fabian Meyer
  */
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch.hpp>
