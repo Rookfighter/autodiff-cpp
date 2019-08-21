@@ -261,6 +261,22 @@ namespace fwd
         return val * val;
     }
 
+    template<typename Scalar>
+    Number<Scalar> log(const Number<Scalar> &val)
+    {
+        Scalar value = std::log(val.value());
+        Scalar gradient = val.gradient() * 1 / val.value();
+        return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    Number<Scalar> log2(const Number<Scalar> &val)
+    {
+        Scalar value = std::log2(val.value());
+        Scalar gradient = val.gradient() * 1 / (val.value() * 0.6931471805599453);
+        return Number<Scalar>(value, gradient);
+    }
+
     typedef Number<double> Double;
     typedef Number<float> Float;
 }
@@ -637,6 +653,32 @@ namespace bwd
     Number<Scalar> abs2(const Number<Scalar> &val)
     {
         return val * val;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> log(const Number<Scalar> &val)
+    {
+        Scalar value = std::log(val.value());
+        Scalar gradient = 1 / val.value();
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> log2(const Number<Scalar> &val)
+    {
+        Scalar value = std::log2(val.value());
+        Scalar gradient = 1 / (val.value() * std::log(2));
+
+        Number<Scalar> result(value);
+
+        val.addChild(gradient, result);
+
+        return result;
     }
 
     typedef Number<double> Double;
