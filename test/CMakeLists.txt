@@ -11,6 +11,7 @@ include_directories(
 set(TEST_SRC
     "main.cpp"
 
+    "adcpp_backward.cpp"
     "adcpp_forward.cpp"
 )
 
