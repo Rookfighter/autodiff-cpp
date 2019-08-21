@@ -81,6 +81,18 @@ TEST_CASE("algorithmic differentiation forward mode")
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
     }
 
+    SECTION("arcus sine")
+    {
+        fwd::Double x(0.5, 1);
+        double valExp = std::asin(x.value());
+        double gradExp = 1 / std::sqrt(1 - x.value() * x.value());
+
+        fwd::Double f = fwd::asin(x);
+
+        REQUIRE(Approx(valExp).margin(eps) == f.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+    }
+
     SECTION("cosine")
     {
         fwd::Double x(3, 1);
@@ -91,6 +103,67 @@ TEST_CASE("algorithmic differentiation forward mode")
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+    }
+
+    SECTION("arcus cosine")
+    {
+        fwd::Double x(0.5, 1);
+        double valExp = std::acos(x.value());
+        double gradExp = -1 / std::sqrt(1 - x.value() * x.value());
+
+        fwd::Double f = fwd::acos(x);
+
+        REQUIRE(Approx(valExp).margin(eps) == f.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+    }
+
+    SECTION("tangens")
+    {
+        fwd::Double x(3, 1);
+        double valExp = std::tan(x.value());
+        double c = std::cos(x.value());
+        double gradExp = 1 / (c * c);
+
+        fwd::Double f = fwd::tan(x);
+
+        REQUIRE(Approx(valExp).margin(eps) == f.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+    }
+
+    SECTION("arcus tangens")
+    {
+        fwd::Double x(3, 1);
+        double valExp = std::atan(x.value());
+        double gradExp = 1 / (1 + x.value() * x.value());
+
+        fwd::Double f = fwd::atan(x);
+
+        REQUIRE(Approx(valExp).margin(eps) == f.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+    }
+
+    SECTION("arcus tangens 2")
+    {
+        fwd::Double x(3, 1);
+        fwd::Double y(1, 0);
+        double valExp = std::atan2(y.value(), x.value());
+        double denom = y.value() * y.value() + x.value() * x.value();
+
+        double gradXExp = y.value() / denom;
+
+        fwd::Double fx = fwd::atan2(y, x);
+
+        x = fwd::Double(3, 0);
+        y = fwd::Double(1, 1);
+
+        double gradyExp = x.value() / denom;
+
+        fwd::Double fy = fwd::atan2(y, x);
+
+        REQUIRE(Approx(valExp).margin(eps) == fx.value());
+        REQUIRE(Approx(valExp).margin(eps) == fy.value());
+        REQUIRE(Approx(gradXExp).margin(eps) == fx.gradient());
+        REQUIRE(Approx(gradyExp).margin(eps) == fy.gradient());
     }
 
     SECTION("square root")
