@@ -14,6 +14,7 @@ set(TEST_SRC
     "adcpp_backward.cpp"
     "adcpp_forward.cpp"
 
+    "adcpp_eigen_backward.cpp"
     "adcpp_eigen_forward.cpp"
 )
 
