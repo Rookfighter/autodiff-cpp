@@ -12,6 +12,35 @@ using namespace adcpp;
 TEST_CASE("Eigen forward algorithmic differentiation")
 {
     double eps = 1e-6;
+
+    SECTION("exp")
+    {
+        fwd::Vector2d x;
+        x << fwd::Double(3,1), fwd::Double(2,0);
+
+        Eigen::Vector2d valExp;
+        valExp <<
+            std::exp(x(0).value()),std::exp(x(1).value());
+        Eigen::Matrix2d jacExp;
+        jacExp << std::exp(x(0).value()), 0,
+            0, std::exp(x(1).value());
+
+        fwd::Vector2d fx = x.array().exp();
+
+        x << fwd::Double(3,0), fwd::Double(2,1);
+        fwd::Vector2d fy = x.array().exp();
+
+        REQUIRE(Approx(valExp(0)).margin(eps) == fx(0).value());
+        REQUIRE(Approx(valExp(1)).margin(eps) == fx(1).value());
+        REQUIRE(Approx(valExp(0)).margin(eps) == fy(0).value());
+        REQUIRE(Approx(valExp(1)).margin(eps) == fy(1).value());
+
+        REQUIRE(Approx(jacExp(0, 0)).margin(eps) == fx(0).gradient());
+        REQUIRE(Approx(jacExp(1, 0)).margin(eps) == fx(1).gradient());
+        REQUIRE(Approx(jacExp(0, 1)).margin(eps) == fy(0).gradient());
+        REQUIRE(Approx(jacExp(1, 1)).margin(eps) == fy(1).gradient());
+    }
+
     SECTION("multiple outputs")
     {
         fwd::Vector2d x;
