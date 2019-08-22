@@ -20,7 +20,7 @@ include_directories(
     ${EIGEN3_INCLUDE_DIR}
 )
 
-install(FILES "include/adcpp.h"
+install(FILES "include/adcpp.h" "include/adcpp_eigen.h"
     DESTINATION "include")
 
 if(${BUILD_EXAMPLES})
