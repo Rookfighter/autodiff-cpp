@@ -272,6 +272,58 @@ TEST_CASE("forward algorithmic differentiation")
         REQUIRE(x1.gradient() == 0);
     }
 
+    SECTION("equality")
+    {
+        fwd::Double x1(1, 1);
+        fwd::Double x2(1, 0);
+        fwd::Double x3(2, 0);
+
+        REQUIRE(x1 == x2);
+        REQUIRE(x1 != x3);
+    }
+
+    SECTION("less than")
+    {
+        fwd::Double x1(-1, 1);
+        fwd::Double x2(1, 0);
+        fwd::Double x3(2, 0);
+
+        REQUIRE(x1 < x2);
+        REQUIRE(!(x3 < x2));
+    }
+
+    SECTION("less equal than")
+    {
+        fwd::Double x1(1, 1);
+        fwd::Double x2(1, 0);
+        fwd::Double x3(2, 0);
+
+        REQUIRE(x1 <= x2);
+        REQUIRE(x2 <= x3);
+        REQUIRE(!(x3 <= x2));
+    }
+
+    SECTION("greater than")
+    {
+        fwd::Double x1(-1, 1);
+        fwd::Double x2(1, 0);
+        fwd::Double x3(2, 0);
+
+        REQUIRE(x2 > x1);
+        REQUIRE(!(x1 > x2));
+    }
+
+    SECTION("greater equal than")
+    {
+        fwd::Double x1(1, 1);
+        fwd::Double x2(1, 0);
+        fwd::Double x3(2, 0);
+
+        REQUIRE(x2 >= x1);
+        REQUIRE(x3 >= x2);
+        REQUIRE(!(x2 >= x3));
+    }
+
     SECTION("multiple variables")
     {
         fwd::Double x(3, 1);

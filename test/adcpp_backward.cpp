@@ -283,6 +283,58 @@ TEST_CASE("backward algorithmic differentiation")
         REQUIRE(x1.gradient() == 0);
     }
 
+    SECTION("equality")
+    {
+        bwd::Double x1(1);
+        bwd::Double x2(1);
+        bwd::Double x3(2);
+
+        REQUIRE(x1 == x2);
+        REQUIRE(x1 != x3);
+    }
+
+    SECTION("less than")
+    {
+        bwd::Double x1(-1);
+        bwd::Double x2(1);
+        bwd::Double x3(2);
+
+        REQUIRE(x1 < x2);
+        REQUIRE(!(x3 < x2));
+    }
+
+    SECTION("less equal than")
+    {
+        bwd::Double x1(1);
+        bwd::Double x2(1);
+        bwd::Double x3(2);
+
+        REQUIRE(x1 <= x2);
+        REQUIRE(x2 <= x3);
+        REQUIRE(!(x3 <= x2));
+    }
+
+    SECTION("greater than")
+    {
+        bwd::Double x1(-1);
+        bwd::Double x2(1);
+        bwd::Double x3(2);
+
+        REQUIRE(x2 > x1);
+        REQUIRE(!(x1 > x2));
+    }
+
+    SECTION("greater equal than")
+    {
+        bwd::Double x1(1);
+        bwd::Double x2(1);
+        bwd::Double x3(2);
+
+        REQUIRE(x2 >= x1);
+        REQUIRE(x3 >= x2);
+        REQUIRE(!(x2 >= x3));
+    }
+
     SECTION("multiple variables")
     {
         bwd::Double x(3);

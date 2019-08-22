@@ -137,6 +137,36 @@ namespace fwd
             return Number<Scalar>(-value_, -gradient_);
         }
 
+        bool operator==(const Number<Scalar> &rhs) const
+        {
+            return value() == rhs.value();
+        }
+
+        bool operator!=(const Number<Scalar> &rhs) const
+        {
+            return value() != rhs.value();
+        }
+
+        bool operator<(const Number<Scalar> &rhs) const
+        {
+            return value() < rhs.value();
+        }
+
+        bool operator<=(const Number<Scalar> &rhs) const
+        {
+            return value() <= rhs.value();
+        }
+
+        bool operator>(const Number<Scalar> &rhs) const
+        {
+            return value() > rhs.value();
+        }
+
+        bool operator>=(const Number<Scalar> &rhs) const
+        {
+            return value() >= rhs.value();
+        }
+
         explicit operator Scalar() const
         {
             return value();
@@ -471,6 +501,36 @@ namespace bwd
             addChild(-1, result);
 
             return result;
+        }
+
+        bool operator==(const Number<Scalar> &rhs) const
+        {
+            return value() == rhs.value();
+        }
+
+        bool operator!=(const Number<Scalar> &rhs) const
+        {
+            return value() != rhs.value();
+        }
+
+        bool operator<(const Number<Scalar> &rhs) const
+        {
+            return value() < rhs.value();
+        }
+
+        bool operator<=(const Number<Scalar> &rhs) const
+        {
+            return value() <= rhs.value();
+        }
+
+        bool operator>(const Number<Scalar> &rhs) const
+        {
+            return value() > rhs.value();
+        }
+
+        bool operator>=(const Number<Scalar> &rhs) const
+        {
+            return value() >= rhs.value();
         }
 
         explicit operator Scalar() const
