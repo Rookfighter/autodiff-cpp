@@ -260,6 +260,34 @@ TEST_CASE("backward algorithmic differentiation")
         REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
     }
 
+    SECTION("explicit cast")
+    {
+        bwd::Double x1(3);
+        double x2 = static_cast<double>(x1);
+
+        REQUIRE(x1.value() == x2);
+
+        x2 = 15;
+        x1 = static_cast<fwd::Double>(x2);
+
+        REQUIRE(x1.value() == x2);
+        REQUIRE(x1.gradient() == 0);
+    }
+
+    SECTION("implicit cast")
+    {
+        bwd::Double x1(3);
+        double x2 = x1;
+
+        REQUIRE(x1.value() == x2);
+
+        x2 = 15;
+        x1 = x2;
+
+        REQUIRE(x1.value() == x2);
+        REQUIRE(x1.gradient() == 0);
+    }
+
     SECTION("multiple variables")
     {
         bwd::Double x(3);

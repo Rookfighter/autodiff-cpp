@@ -136,6 +136,11 @@ namespace fwd
         {
             return Number<Scalar>(-value_, -gradient_);
         }
+
+        operator Scalar() const
+        {
+            return value();
+        }
     };
 
     template<typename Scalar>
@@ -466,6 +471,11 @@ namespace bwd
             addChild(-1, result);
 
             return result;
+        }
+
+        operator Scalar() const
+        {
+            return value();
         }
     };
 
