@@ -265,13 +265,8 @@ TEST_CASE("forward algorithmic differentiation")
 
     SECTION("implicit cast")
     {
-        fwd::Double x1(3, 1);
-        double x2 = x1;
-
-        REQUIRE(x1.value() == x2);
-
-        x2 = 15;
-        x1 = x2;
+        double x2 = 15;
+        fwd::Double x1 = x2;
 
         REQUIRE(x1.value() == x2);
         REQUIRE(x1.gradient() == 0);

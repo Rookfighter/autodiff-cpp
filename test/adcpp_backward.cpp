@@ -268,7 +268,7 @@ TEST_CASE("backward algorithmic differentiation")
         REQUIRE(x1.value() == x2);
 
         x2 = 15;
-        x1 = static_cast<fwd::Double>(x2);
+        x1 = static_cast<bwd::Double>(x2);
 
         REQUIRE(x1.value() == x2);
         REQUIRE(x1.gradient() == 0);
@@ -276,13 +276,8 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("implicit cast")
     {
-        bwd::Double x1(3);
-        double x2 = x1;
-
-        REQUIRE(x1.value() == x2);
-
-        x2 = 15;
-        x1 = x2;
+        double x2 = 15;
+        bwd::Double x1 = x2;
 
         REQUIRE(x1.value() == x2);
         REQUIRE(x1.gradient() == 0);

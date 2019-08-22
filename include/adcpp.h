@@ -137,7 +137,7 @@ namespace fwd
             return Number<Scalar>(-value_, -gradient_);
         }
 
-        operator Scalar() const
+        explicit operator Scalar() const
         {
             return value();
         }
@@ -473,7 +473,7 @@ namespace bwd
             return result;
         }
 
-        operator Scalar() const
+        explicit operator Scalar() const
         {
             return value();
         }
