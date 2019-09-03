@@ -414,13 +414,12 @@ namespace bwd
             { }
 
             Data(const Scalar value)
-                : value(value), children(), gradient(0), fixedGradient(false)
+                : value(value), children(), gradient(0)
             { }
 
             Scalar value;
             std::vector<Node> children;
             Scalar gradient;
-            bool fixedGradient;
         };
 
         typename Data::Ptr data_;
@@ -430,11 +429,11 @@ namespace bwd
         { }
 
         Number(const Scalar value)
-        : data_(new Data(value))
+            : data_(new Data(value))
         { }
 
         Number(const Number<Scalar> &rhs)
-        : data_(rhs.data_)
+            : data_(rhs.data_)
         { }
 
         ~Number()
@@ -459,14 +458,7 @@ namespace bwd
 
         void setGradient(const Scalar grad)
         {
-            data_->fixedGradient = true;
             data_->gradient = grad;
-        }
-
-        void unsetGradient()
-        {
-            data_->fixedGradient = false;
-            data_->gradient = 0;
         }
 
         void addChild(const Scalar weight, const Number<Scalar> &val) const
@@ -482,7 +474,7 @@ namespace bwd
 
         Number<Scalar> &operator=(const Scalar rhs)
         {
-            *this = Number<Scalar>(rhs);
+            data_ = Data::Ptr(new Data(rhs));
             return *this;
         }
 
@@ -612,6 +604,58 @@ namespace bwd
     {
         lhs << rhs.value();
         return lhs;
+    }
+
+    template<typename Scalar>
+    Scalar &operator+=(Scalar &lhs, const Number<Scalar> &rhs)
+    {
+        lhs += rhs.value();
+        return lhs;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> operator+(const Scalar lhs, const Number<Scalar> &rhs)
+    {
+        return Number<Scalar>(lhs) + rhs;
+    }
+
+    template<typename Scalar>
+    Scalar &operator-=(Scalar &lhs, const Number<Scalar> &rhs)
+    {
+        lhs -= rhs.value();
+        return lhs;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> operator-(const Scalar lhs, const Number<Scalar> &rhs)
+    {
+        return Number<Scalar>(lhs) - rhs;
+    }
+
+    template<typename Scalar>
+    Scalar &operator*=(Scalar &lhs, const Number<Scalar> &rhs)
+    {
+        lhs *= rhs.value();
+        return lhs;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> operator*(const Scalar lhs, const Number<Scalar> &rhs)
+    {
+        return Number<Scalar>(lhs) * rhs;
+    }
+
+    template<typename Scalar>
+    Scalar &operator/=(Scalar &lhs, const Number<Scalar> &rhs)
+    {
+        lhs /= rhs.value();
+        return lhs;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> operator/(const Scalar lhs, const Number<Scalar> &rhs)
+    {
+        return Number<Scalar>(lhs) / rhs;
     }
 
     template<typename Scalar>
@@ -824,6 +868,12 @@ namespace bwd
         val.addChild(gradient, result);
 
         return result;
+    }
+
+    template<typename Scalar>
+    bool isfinite(const Number<Scalar> &val)
+    {
+        return std::isfinite(val.value());
     }
 
     typedef Number<double> Double;

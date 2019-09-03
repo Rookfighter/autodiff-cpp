@@ -62,7 +62,7 @@ int main(const int argc, const char **argv)
 
     // if you want calculate the derivative of a different function value, make
     // sure to unset the gradient of the previous value.
-    fA.unsetGradient();
+    fA.setGradient(0);
     // Set the gradient of function value B.
     fB.setGradient(1);
     std::cout << "Result (B):" << std::endl
