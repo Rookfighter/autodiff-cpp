@@ -7,7 +7,9 @@
 #include <catch2/catch.hpp>
 #include <adcpp_eigen.h>
 #include <Eigen/Geometry>
+#include <Eigen/Eigenvalues>
 #include <iostream>
+#include "assert/eigen_require.h"
 
 using namespace adcpp;
 
@@ -72,6 +74,42 @@ TEST_CASE("Eigen forward algorithmic differentiation")
         REQUIRE(Approx(gradExp(1)).margin(eps) == resultAct(1).gradient());
         REQUIRE(Approx(gradExp(2)).margin(eps) == resultAct(2).gradient());
         REQUIRE(Approx(gradExp(3)).margin(eps) == resultAct(3).gradient());
+    }
+
+    SECTION("eigen value decomposition")
+    {
+        fwd::Matrix4d A;
+        A << fwd::Double(2, 1), 3, 11, 5,
+            1, 1, 5, 2,
+            2, 1, -3, 2,
+            1, 1, -3, 4;
+        fwd::Vector4d b;
+        b << 2, 1, -3, -3;
+
+        Eigen::Vector4d eigvalsExp;
+        eigvalsExp << 7.27048, -5.64984, -0.291657, 2.67103;
+        Eigen::Vector4d eiggradExp;
+        eiggradExp <<  0.536189,  0.463811, 0, 0;
+
+        // fwd::Matrix4d eigvecsExp;
+        // eigvecsExp << {-0.876222,-0.00751341}, {-0.753719,0.0253678}, {-0.385575,0.000318112}, {-0.7708,0.0208401},
+        //     {-0.383851,-0.00363189}, {-0.339417,0.0107483}, {0.901238,-0.000267286}, {-0.375263,0.00697385},
+        //     {-0.240136,0.0238235}, {0.495258,0.0346733}, {-0.0841202,-0.00198342}, {-0.166164,0.0451401},
+        //     {-0.165011,0.0136757}, {0.267249,0.0209397}, {-0.178957,-0.00109914}, {0.487272,0.0537302};
+
+        Eigen::EigenSolver<fwd::Matrix4d> solver(A);
+        fwd::Vector4d eigvals = solver.eigenvalues().real();
+        fwd::Matrix4d eigvecs = solver.eigenvectors().real();
+
+        REQUIRE(Approx(eigvalsExp(0)).margin(eps) == eigvals(0).value());
+        REQUIRE(Approx(eigvalsExp(1)).margin(eps) == eigvals(1).value());
+        REQUIRE(Approx(eigvalsExp(2)).margin(eps) == eigvals(2).value());
+        REQUIRE(Approx(eigvalsExp(3)).margin(eps) == eigvals(3).value());
+
+        REQUIRE(Approx(eiggradExp(0)).margin(eps) == eigvals(0).gradient());
+        REQUIRE(Approx(eiggradExp(1)).margin(eps) == eigvals(1).gradient());
+        REQUIRE(Approx(eiggradExp(2)).margin(eps) == eigvals(2).gradient());
+        REQUIRE(Approx(eiggradExp(3)).margin(eps) == eigvals(3).gradient());
     }
 
     SECTION("multiple outputs")

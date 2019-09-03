@@ -189,11 +189,24 @@ namespace fwd
         lhs += rhs.value();
         return lhs;
     }
+
+    template<typename Scalar>
+    Number<Scalar> operator+(const Scalar lhs, const Number<Scalar> &rhs)
+    {
+        return Number<Scalar>(lhs) + rhs;
+    }
+
     template<typename Scalar>
     Scalar &operator-=(Scalar &lhs, const Number<Scalar> &rhs)
     {
         lhs -= rhs.value();
         return lhs;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> operator-(const Scalar lhs, const Number<Scalar> &rhs)
+    {
+        return Number<Scalar>(lhs) - rhs;
     }
 
     template<typename Scalar>
@@ -204,10 +217,22 @@ namespace fwd
     }
 
     template<typename Scalar>
+    Number<Scalar> operator*(const Scalar lhs, const Number<Scalar> &rhs)
+    {
+        return Number<Scalar>(lhs) * rhs;
+    }
+
+    template<typename Scalar>
     Scalar &operator/=(Scalar &lhs, const Number<Scalar> &rhs)
     {
         lhs /= rhs.value();
         return lhs;
+    }
+
+    template<typename Scalar>
+    Number<Scalar> operator/(const Scalar lhs, const Number<Scalar> &rhs)
+    {
+        return Number<Scalar>(lhs) / rhs;
     }
 
     template<typename Scalar>
@@ -347,6 +372,12 @@ namespace fwd
         Scalar value = std::log2(val.value());
         Scalar gradient = val.gradient() * 1 / (val.value() * 0.6931471805599453);
         return Number<Scalar>(value, gradient);
+    }
+
+    template<typename Scalar>
+    bool isfinite(const Number<Scalar> &val)
+    {
+        return std::isfinite(val.value());
     }
 
     typedef Number<double> Double;

@@ -30,7 +30,7 @@ namespace Eigen {
     };
 
     template<> struct NumTraits<adcpp::fwd::Float>
-        : NumTraits<double>
+        : NumTraits<float>
     {
         typedef adcpp::fwd::Float Real;
         typedef adcpp::fwd::Float NonInteger;
@@ -64,7 +64,7 @@ namespace Eigen {
     };
 
     template<> struct NumTraits<adcpp::bwd::Float>
-        : NumTraits<double>
+        : NumTraits<float>
     {
         typedef adcpp::bwd::Float Real;
         typedef adcpp::bwd::Float NonInteger;
