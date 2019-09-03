@@ -6,6 +6,8 @@
 
 #include <catch2/catch.hpp>
 #include <adcpp_eigen.h>
+#include <Eigen/Geometry>
+#include <iostream>
 
 using namespace adcpp;
 
@@ -39,6 +41,37 @@ TEST_CASE("Eigen forward algorithmic differentiation")
         REQUIRE(Approx(jacExp(1, 0)).margin(eps) == fx(1).gradient());
         REQUIRE(Approx(jacExp(0, 1)).margin(eps) == fy(0).gradient());
         REQUIRE(Approx(jacExp(1, 1)).margin(eps) == fy(1).gradient());
+    }
+
+    SECTION("singular value decomposition")
+    {
+        fwd::Matrix4d A;
+        A << fwd::Double(2, 1), 3, 11, 5,
+            1, 1, 5, 2,
+            2, 1, -3, 2,
+            1, 1, -3, 4;
+        fwd::Vector4d b;
+        b << 2, 1, -3, -3;
+
+        fwd::Vector4d resultAct;
+        Eigen::Vector4d valExp;
+        Eigen::Vector4d gradExp;
+        valExp << -0.5, -0.1875, 0.4375, -0.25;
+        gradExp << -0.205283, 0.687338, -0.0722404, -0.117474;
+
+        Eigen::JacobiSVD<fwd::Matrix4d, Eigen::FullPivHouseholderQRPreconditioner>
+            solver(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+        resultAct = solver.solve(b);
+
+        REQUIRE(Approx(valExp(0)).margin(eps) == resultAct(0).value());
+        REQUIRE(Approx(valExp(1)).margin(eps) == resultAct(1).value());
+        REQUIRE(Approx(valExp(2)).margin(eps) == resultAct(2).value());
+        REQUIRE(Approx(valExp(3)).margin(eps) == resultAct(3).value());
+
+        REQUIRE(Approx(gradExp(0)).margin(eps) == resultAct(0).gradient());
+        REQUIRE(Approx(gradExp(1)).margin(eps) == resultAct(1).gradient());
+        REQUIRE(Approx(gradExp(2)).margin(eps) == resultAct(2).gradient());
+        REQUIRE(Approx(gradExp(3)).margin(eps) == resultAct(3).gradient());
     }
 
     SECTION("multiple outputs")

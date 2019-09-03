@@ -11,6 +11,7 @@
 #include <cmath>
 #include <memory>
 #include <vector>
+#include <ostream>
 
 namespace adcpp
 {
@@ -171,7 +172,43 @@ namespace fwd
         {
             return value();
         }
+
     };
+
+    template<typename Scalar>
+    std::ostream& operator<<(std::ostream &lhs, const Number<Scalar> &rhs)
+    {
+        lhs << '(' << rhs.value() << ',' << rhs.gradient() << ')';
+
+        return lhs;
+    }
+
+    template<typename Scalar>
+    Scalar &operator+=(Scalar &lhs, const Number<Scalar> &rhs)
+    {
+        lhs += rhs.value();
+        return lhs;
+    }
+    template<typename Scalar>
+    Scalar &operator-=(Scalar &lhs, const Number<Scalar> &rhs)
+    {
+        lhs -= rhs.value();
+        return lhs;
+    }
+
+    template<typename Scalar>
+    Scalar &operator*=(Scalar &lhs, const Number<Scalar> &rhs)
+    {
+        lhs *= rhs.value();
+        return lhs;
+    }
+
+    template<typename Scalar>
+    Scalar &operator/=(Scalar &lhs, const Number<Scalar> &rhs)
+    {
+        lhs /= rhs.value();
+        return lhs;
+    }
 
     template<typename Scalar>
     Number<Scalar> sin(const Number<Scalar> &val)
@@ -538,6 +575,13 @@ namespace bwd
             return value();
         }
     };
+
+    template<typename Scalar>
+    std::ostream& operator<<(std::ostream &lhs, const Number<Scalar> &rhs)
+    {
+        lhs << rhs.value();
+        return lhs;
+    }
 
     template<typename Scalar>
     Number<Scalar> sin(const Number<Scalar> &val)
