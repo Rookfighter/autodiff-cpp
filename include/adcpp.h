@@ -12,6 +12,8 @@
 #include <memory>
 #include <vector>
 #include <ostream>
+#include <map>
+#include <sstream>
 
 namespace adcpp
 {
@@ -386,6 +388,503 @@ namespace fwd
 
 namespace bwd
 {
+    template<typename Scalar, typename T>
+    class Expression
+    {
+    private:
+        std::string id_;
+        Scalar value_;
+    public:
+        typedef std::shared_ptr<Expression<Scalar, T>> Ptr;
+
+        Expression(const Scalar value)
+            : id_(), value_(value)
+        {
+            std::stringstream ss;
+            ss << this;
+            id_ = ss.str;
+        }
+
+        Scalar value() const
+        {
+            return value_;
+        }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            static_cast<const T&>(*this).gradient(map, weight);
+        }
+
+        const std::string &id() const
+        {
+            return id_;
+        }
+    };
+
+    template<typename Scalar>
+    class Parameter : public Expression<Scalar, Parameter<Scalar>>
+    {
+    public:
+        typedef std::shared_ptr<Parameter<Scalar>> Ptr;
+
+        Parameter(const Scalar value)
+            : Expression<Scalar, Parameter<Scalar>>(value)
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            const auto it = map.find(this->id());
+            if(it != map.end())
+                it->second += weight;
+            else
+                map[this->id()] = weight;
+        }
+    };
+
+    template<typename Scalar>
+    class Constant : public Expression<Scalar, Constant<Scalar>>
+    {
+    public:
+        typedef std::shared_ptr<Constant<Scalar>> Ptr;
+
+        Constant(const Scalar value)
+            : Expression<Scalar, Constant<Scalar>>(value)
+        { }
+
+        void gradient(std::map<std::string, Scalar> &, const Scalar) const
+        { }
+    };
+
+    template<typename Scalar, typename T>
+    class Negate : public Expression<Scalar, Negate<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+    public:
+        typedef std::shared_ptr<Negate<Scalar, T>> Ptr;
+
+        Negate(const typename T::Ptr expr)
+            : Expression<Scalar, Negate<Scalar, T>>(-expr->value()),
+            expr_(expr)
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, -weight);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Sin : public Expression<Scalar, Sin<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Sin<Scalar, T>> Ptr;
+
+        Sin(const typename T::Ptr expr)
+            : Expression<Scalar, Sin<Scalar, T>>(std::sin(expr->value())),
+            expr_(expr),
+            weight_(std::cos(expr_->value()))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class ArcSin : public Expression<Scalar, ArcSin<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<ArcSin<Scalar, T>> Ptr;
+
+        ArcSin(const typename T::Ptr expr)
+            : Expression<Scalar, ArcSin<Scalar, T>>(std::asin(expr->value())),
+            expr_(expr),
+            weight_(1 / std::sqrt(1 - expr->value() * expr->value()))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Cos : public Expression<Scalar, Cos<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Cos<Scalar, T>> Ptr;
+
+        Cos(const typename T::Ptr expr)
+            : Expression<Scalar, Cos<Scalar, T>>(std::cos(expr->value())),
+            expr_(expr),
+            weight_(-std::sin(expr_->value()))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class ArcCos : public Expression<Scalar, ArcCos<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<ArcCos<Scalar, T>> Ptr;
+
+        ArcCos(const typename T::Ptr expr)
+            : Expression<Scalar, ArcCos<Scalar, T>>(std::acos(expr->value())),
+            expr_(expr),
+            weight_(-1 / std::sqrt(1 - expr->value() * expr->value()))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Tan : public Expression<Scalar, Tan<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Tan<Scalar, T>> Ptr;
+
+        Tan(const typename T::Ptr expr)
+            : Expression<Scalar, Tan<Scalar, T>>(std::tan(expr->value())),
+            expr_(expr),
+            weight_()
+        {
+            Scalar c = std::cos(expr->value());
+            weight_ = 1 / (c * c);
+        }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class ArcTan : public Expression<Scalar, ArcTan<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<ArcTan<Scalar, T>> Ptr;
+
+        ArcTan(const typename T::Ptr expr)
+            : Expression<Scalar, ArcTan<Scalar, T>>(std::atan(expr->value())),
+            expr_(expr),
+            weight_(1 / (1 + expr->value() * expr->value()))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename L, typename R>
+    class ArcTan2 : public Expression<Scalar, ArcTan2<Scalar, L, R>>
+    {
+    private:
+        typename L::Ptr lhs_;
+        typename R::Ptr rhs_;
+        Scalar weightLhs_;
+        Scalar weightRhs_;
+    public:
+        typedef std::shared_ptr<ArcTan2<Scalar, L, R>> Ptr;
+
+        ArcTan2(const typename L::Ptr lhs, const typename R::Ptr rhs)
+            : Expression<Scalar, ArcTan2<Scalar, L, R>>(std::atan2(lhs->value(), rhs->value())),
+            lhs_(lhs), rhs_(rhs),
+            weightLhs_(), weightRhs_()
+        {
+            Scalar denom = rhs->value() * rhs.value() + lhs.value() * lhs.value();
+            weightLhs_ = rhs->value() / denom;
+            weightRhs_ = lhs->value() / denom;
+        }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            lhs_->gradient(map, weight * weightLhs_);
+            rhs_->gradient(map, weight * weightRhs_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Exp : public Expression<Scalar, Exp<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Exp<Scalar, T>> Ptr;
+
+        Exp(const typename T::Ptr expr)
+            : Expression<Scalar, Exp<Scalar, T>>(std::exp(expr->value())),
+            expr_(expr),
+            weight_(this->value())
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Sqrt : public Expression<Scalar, Sqrt<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Sqrt<Scalar, T>> Ptr;
+
+        Sqrt(const typename T::Ptr expr)
+            : Expression<Scalar, Sqrt<Scalar, T>>(std::sqrt(expr->value())),
+            expr_(expr),
+            weight_(1 / (2 * this->value()))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Abs : public Expression<Scalar, Abs<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+    public:
+        typedef std::shared_ptr<Abs<Scalar, T>> Ptr;
+
+        Abs(const typename T::Ptr expr)
+            : Expression<Scalar, Abs<Scalar, T>>(std::abs(expr->value())),
+            expr_(expr)
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, std::abs(weight));
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Abs2 : public Expression<Scalar, Abs2<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Abs2<Scalar, T>> Ptr;
+
+        Abs2(const typename T::Ptr expr)
+            : Expression<Scalar, Abs2<Scalar, T>>(expr->value() * expr->value()),
+            expr_(expr),
+            weight_(expr->value() / 2)
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Log : public Expression<Scalar, Log<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Log<Scalar, T>> Ptr;
+
+        Log(const typename T::Ptr expr)
+            : Expression<Scalar, Log<Scalar, T>>(std::log(expr->value())),
+            expr_(expr),
+            weight_(1 / expr->value())
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Log2 : public Expression<Scalar, Log2<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Log2<Scalar, T>> Ptr;
+
+        Log2(const typename T::Ptr expr)
+            : Expression<Scalar, Log2<Scalar, T>>(std::log2(expr->value())),
+            expr_(expr),
+            weight_(1 / (expr->value() * std::log(2)))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class Pow : public Expression<Scalar, Pow<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<Pow<Scalar, T>> Ptr;
+
+        Pow(const typename T::Ptr expr, const Scalar exponent)
+            : Expression<Scalar, Pow<Scalar, T>>(std::pow(expr->value(), exponent)),
+            expr_(expr),
+            weight_(exponent * std::pow(expr->value(), exponent - 1))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename T>
+    class PowInt : public Expression<Scalar, PowInt<Scalar, T>>
+    {
+    private:
+        typename T::Ptr expr_;
+        Scalar weight_;
+    public:
+        typedef std::shared_ptr<PowInt<Scalar, T>> Ptr;
+
+        PowInt(const typename T::Ptr expr, const int exponent)
+            : Expression<Scalar, PowInt<Scalar, T>>(std::pow(expr->value(), exponent)),
+            expr_(expr),
+            weight_(exponent * std::pow(expr->value(), exponent - 1))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            expr_->gradient(map, weight * weight_);
+        }
+    };
+
+    template<typename Scalar, typename L, typename R>
+    class Add : public Expression<Scalar, Add<Scalar, L, R>>
+    {
+    private:
+        typename L::Ptr lhs_;
+        typename R::Ptr rhs_;
+    public:
+        typedef std::shared_ptr<Add<Scalar, L, R>> Ptr;
+
+        Add(const typename L::Ptr lhs, const typename R::Ptr rhs)
+            : Expression<Scalar, Add<Scalar, L, R>>(lhs->value() + rhs->value()),
+            lhs_(lhs), rhs_(rhs)
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            lhs_->gradient(map, weight);
+            rhs_->gradient(map, weight);
+        }
+    };
+
+    template<typename Scalar, typename L, typename R>
+    class Subtract : public Expression<Scalar, Subtract<Scalar, L, R>>
+    {
+    private:
+        typename L::Ptr lhs_;
+        typename R::Ptr rhs_;
+    public:
+        typedef std::shared_ptr<Subtract<Scalar, L, R>> Ptr;
+
+        Subtract(const typename L::Ptr lhs, const typename R::Ptr rhs)
+            : Expression<Scalar, Subtract<Scalar, L, R>>(lhs->value() - rhs->value()),
+            lhs_(lhs), rhs_(rhs)
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            lhs_->gradient(map, weight);
+            rhs_->gradient(map, -weight);
+        }
+    };
+
+    template<typename Scalar, typename L, typename R>
+    class Multiply : public Expression<Scalar, Multiply<Scalar, L, R>>
+    {
+    private:
+        typename L::Ptr lhs_;
+        typename R::Ptr rhs_;
+    public:
+        typedef std::shared_ptr<Multiply<Scalar, L, R>> Ptr;
+
+        Multiply(const typename L::Ptr lhs, const typename R::Ptr rhs)
+            : Expression<Scalar, Multiply<Scalar, L, R>>(lhs->value() * rhs->value()),
+            lhs_(lhs), rhs_(rhs)
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            lhs_->gradient(map, rhs_->value() * weight);
+            rhs_->gradient(map, lhs_->value() * weight);
+        }
+    };
+
+    template<typename Scalar, typename L, typename R>
+    class Divide : public Expression<Scalar, Divide<Scalar, L, R>>
+    {
+    private:
+        typename L::Ptr lhs_;
+        typename R::Ptr rhs_;
+        Scalar weightLhs_;
+        Scalar weightRhs_;
+    public:
+        typedef std::shared_ptr<Divide<Scalar, L, R>> Ptr;
+
+        Divide(const typename L::Ptr lhs, const typename R::Ptr rhs)
+            : Expression<Scalar, Divide<Scalar, L, R>>(lhs->value() / rhs->value()),
+            lhs_(lhs), rhs_(rhs),
+            weightLhs_(1 / rhs->value()),
+            weightRhs_(-lhs->value() / (rhs->value() * rhs->value()))
+        { }
+
+        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        {
+            lhs_->gradient(map, weightLhs_ * weight);
+            rhs_->gradient(map, weightRhs_ * weight);
+        }
+    };
+
     template<typename Scalar>
     class Number
     {
