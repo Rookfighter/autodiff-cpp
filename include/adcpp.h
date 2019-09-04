@@ -395,8 +395,6 @@ namespace bwd
         std::string id_;
         Scalar value_;
     public:
-        typedef std::shared_ptr<Expression<Scalar, T>> Ptr;
-
         Expression(const Scalar value)
             : id_(), value_(value)
         {
@@ -425,8 +423,6 @@ namespace bwd
     class Parameter : public Expression<Scalar, Parameter<Scalar>>
     {
     public:
-        typedef std::shared_ptr<Parameter<Scalar>> Ptr;
-
         Parameter(const Scalar value)
             : Expression<Scalar, Parameter<Scalar>>(value)
         { }
@@ -445,8 +441,6 @@ namespace bwd
     class Constant : public Expression<Scalar, Constant<Scalar>>
     {
     public:
-        typedef std::shared_ptr<Constant<Scalar>> Ptr;
-
         Constant(const Scalar value)
             : Expression<Scalar, Constant<Scalar>>(value)
         { }
@@ -459,11 +453,9 @@ namespace bwd
     class Negate : public Expression<Scalar, Negate<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
     public:
-        typedef std::shared_ptr<Negate<Scalar, T>> Ptr;
-
-        Negate(const typename T::Ptr expr)
+        Negate(const std::shared_ptr<T> expr)
             : Expression<Scalar, Negate<Scalar, T>>(-expr->value()),
             expr_(expr)
         { }
@@ -478,12 +470,10 @@ namespace bwd
     class Sin : public Expression<Scalar, Sin<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Sin<Scalar, T>> Ptr;
-
-        Sin(const typename T::Ptr expr)
+        Sin(const std::shared_ptr<T> expr)
             : Expression<Scalar, Sin<Scalar, T>>(std::sin(expr->value())),
             expr_(expr),
             weight_(std::cos(expr_->value()))
@@ -499,12 +489,10 @@ namespace bwd
     class ArcSin : public Expression<Scalar, ArcSin<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<ArcSin<Scalar, T>> Ptr;
-
-        ArcSin(const typename T::Ptr expr)
+        ArcSin(const std::shared_ptr<T> expr)
             : Expression<Scalar, ArcSin<Scalar, T>>(std::asin(expr->value())),
             expr_(expr),
             weight_(1 / std::sqrt(1 - expr->value() * expr->value()))
@@ -520,12 +508,10 @@ namespace bwd
     class Cos : public Expression<Scalar, Cos<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Cos<Scalar, T>> Ptr;
-
-        Cos(const typename T::Ptr expr)
+        Cos(const std::shared_ptr<T> expr)
             : Expression<Scalar, Cos<Scalar, T>>(std::cos(expr->value())),
             expr_(expr),
             weight_(-std::sin(expr_->value()))
@@ -541,12 +527,10 @@ namespace bwd
     class ArcCos : public Expression<Scalar, ArcCos<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<ArcCos<Scalar, T>> Ptr;
-
-        ArcCos(const typename T::Ptr expr)
+        ArcCos(const std::shared_ptr<T> expr)
             : Expression<Scalar, ArcCos<Scalar, T>>(std::acos(expr->value())),
             expr_(expr),
             weight_(-1 / std::sqrt(1 - expr->value() * expr->value()))
@@ -562,12 +546,10 @@ namespace bwd
     class Tan : public Expression<Scalar, Tan<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Tan<Scalar, T>> Ptr;
-
-        Tan(const typename T::Ptr expr)
+        Tan(const std::shared_ptr<T> expr)
             : Expression<Scalar, Tan<Scalar, T>>(std::tan(expr->value())),
             expr_(expr),
             weight_()
@@ -586,12 +568,10 @@ namespace bwd
     class ArcTan : public Expression<Scalar, ArcTan<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<ArcTan<Scalar, T>> Ptr;
-
-        ArcTan(const typename T::Ptr expr)
+        ArcTan(const std::shared_ptr<T> expr)
             : Expression<Scalar, ArcTan<Scalar, T>>(std::atan(expr->value())),
             expr_(expr),
             weight_(1 / (1 + expr->value() * expr->value()))
@@ -607,14 +587,12 @@ namespace bwd
     class ArcTan2 : public Expression<Scalar, ArcTan2<Scalar, L, R>>
     {
     private:
-        typename L::Ptr lhs_;
-        typename R::Ptr rhs_;
+        std::shared_ptr<L> lhs_;
+        std::shared_ptr<R> rhs_;
         Scalar weightLhs_;
         Scalar weightRhs_;
     public:
-        typedef std::shared_ptr<ArcTan2<Scalar, L, R>> Ptr;
-
-        ArcTan2(const typename L::Ptr lhs, const typename R::Ptr rhs)
+        ArcTan2(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
             : Expression<Scalar, ArcTan2<Scalar, L, R>>(std::atan2(lhs->value(), rhs->value())),
             lhs_(lhs), rhs_(rhs),
             weightLhs_(), weightRhs_()
@@ -635,12 +613,10 @@ namespace bwd
     class Exp : public Expression<Scalar, Exp<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Exp<Scalar, T>> Ptr;
-
-        Exp(const typename T::Ptr expr)
+        Exp(const std::shared_ptr<T> expr)
             : Expression<Scalar, Exp<Scalar, T>>(std::exp(expr->value())),
             expr_(expr),
             weight_(this->value())
@@ -656,12 +632,10 @@ namespace bwd
     class Sqrt : public Expression<Scalar, Sqrt<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Sqrt<Scalar, T>> Ptr;
-
-        Sqrt(const typename T::Ptr expr)
+        Sqrt(const std::shared_ptr<T> expr)
             : Expression<Scalar, Sqrt<Scalar, T>>(std::sqrt(expr->value())),
             expr_(expr),
             weight_(1 / (2 * this->value()))
@@ -677,11 +651,9 @@ namespace bwd
     class Abs : public Expression<Scalar, Abs<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
     public:
-        typedef std::shared_ptr<Abs<Scalar, T>> Ptr;
-
-        Abs(const typename T::Ptr expr)
+        Abs(const std::shared_ptr<T> expr)
             : Expression<Scalar, Abs<Scalar, T>>(std::abs(expr->value())),
             expr_(expr)
         { }
@@ -696,12 +668,10 @@ namespace bwd
     class Abs2 : public Expression<Scalar, Abs2<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Abs2<Scalar, T>> Ptr;
-
-        Abs2(const typename T::Ptr expr)
+        Abs2(const std::shared_ptr<T> expr)
             : Expression<Scalar, Abs2<Scalar, T>>(expr->value() * expr->value()),
             expr_(expr),
             weight_(expr->value() / 2)
@@ -717,12 +687,10 @@ namespace bwd
     class Log : public Expression<Scalar, Log<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Log<Scalar, T>> Ptr;
-
-        Log(const typename T::Ptr expr)
+        Log(const std::shared_ptr<T> expr)
             : Expression<Scalar, Log<Scalar, T>>(std::log(expr->value())),
             expr_(expr),
             weight_(1 / expr->value())
@@ -738,12 +706,10 @@ namespace bwd
     class Log2 : public Expression<Scalar, Log2<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Log2<Scalar, T>> Ptr;
-
-        Log2(const typename T::Ptr expr)
+        Log2(const std::shared_ptr<T> expr)
             : Expression<Scalar, Log2<Scalar, T>>(std::log2(expr->value())),
             expr_(expr),
             weight_(1 / (expr->value() * std::log(2)))
@@ -759,12 +725,10 @@ namespace bwd
     class Pow : public Expression<Scalar, Pow<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<Pow<Scalar, T>> Ptr;
-
-        Pow(const typename T::Ptr expr, const Scalar exponent)
+        Pow(const std::shared_ptr<T> expr, const Scalar exponent)
             : Expression<Scalar, Pow<Scalar, T>>(std::pow(expr->value(), exponent)),
             expr_(expr),
             weight_(exponent * std::pow(expr->value(), exponent - 1))
@@ -780,12 +744,10 @@ namespace bwd
     class PowInt : public Expression<Scalar, PowInt<Scalar, T>>
     {
     private:
-        typename T::Ptr expr_;
+        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        typedef std::shared_ptr<PowInt<Scalar, T>> Ptr;
-
-        PowInt(const typename T::Ptr expr, const int exponent)
+        PowInt(const std::shared_ptr<T> expr, const int exponent)
             : Expression<Scalar, PowInt<Scalar, T>>(std::pow(expr->value(), exponent)),
             expr_(expr),
             weight_(exponent * std::pow(expr->value(), exponent - 1))
@@ -801,12 +763,10 @@ namespace bwd
     class Add : public Expression<Scalar, Add<Scalar, L, R>>
     {
     private:
-        typename L::Ptr lhs_;
-        typename R::Ptr rhs_;
+        std::shared_ptr<L> lhs_;
+        std::shared_ptr<R> rhs_;
     public:
-        typedef std::shared_ptr<Add<Scalar, L, R>> Ptr;
-
-        Add(const typename L::Ptr lhs, const typename R::Ptr rhs)
+        Add(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
             : Expression<Scalar, Add<Scalar, L, R>>(lhs->value() + rhs->value()),
             lhs_(lhs), rhs_(rhs)
         { }
@@ -822,12 +782,10 @@ namespace bwd
     class Subtract : public Expression<Scalar, Subtract<Scalar, L, R>>
     {
     private:
-        typename L::Ptr lhs_;
-        typename R::Ptr rhs_;
+        std::shared_ptr<L> lhs_;
+        std::shared_ptr<R> rhs_;
     public:
-        typedef std::shared_ptr<Subtract<Scalar, L, R>> Ptr;
-
-        Subtract(const typename L::Ptr lhs, const typename R::Ptr rhs)
+        Subtract(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
             : Expression<Scalar, Subtract<Scalar, L, R>>(lhs->value() - rhs->value()),
             lhs_(lhs), rhs_(rhs)
         { }
@@ -843,12 +801,10 @@ namespace bwd
     class Multiply : public Expression<Scalar, Multiply<Scalar, L, R>>
     {
     private:
-        typename L::Ptr lhs_;
-        typename R::Ptr rhs_;
+        std::shared_ptr<L> lhs_;
+        std::shared_ptr<R> rhs_;
     public:
-        typedef std::shared_ptr<Multiply<Scalar, L, R>> Ptr;
-
-        Multiply(const typename L::Ptr lhs, const typename R::Ptr rhs)
+        Multiply(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
             : Expression<Scalar, Multiply<Scalar, L, R>>(lhs->value() * rhs->value()),
             lhs_(lhs), rhs_(rhs)
         { }
@@ -864,14 +820,12 @@ namespace bwd
     class Divide : public Expression<Scalar, Divide<Scalar, L, R>>
     {
     private:
-        typename L::Ptr lhs_;
-        typename R::Ptr rhs_;
+        std::shared_ptr<L> lhs_;
+        std::shared_ptr<R> rhs_;
         Scalar weightLhs_;
         Scalar weightRhs_;
     public:
-        typedef std::shared_ptr<Divide<Scalar, L, R>> Ptr;
-
-        Divide(const typename L::Ptr lhs, const typename R::Ptr rhs)
+        Divide(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
             : Expression<Scalar, Divide<Scalar, L, R>>(lhs->value() / rhs->value()),
             lhs_(lhs), rhs_(rhs),
             weightLhs_(1 / rhs->value()),
