@@ -46,7 +46,7 @@ int main(const int argc, const char **argv)
 
     // Set the derivative of the function value, of which we want to compute the
     // derivative
-    bwd::DerivativeMap<double> derivative;
+    bwd::Double::DerivativeMap derivative;
     fA.derivative(derivative);
 
     // Print the results.

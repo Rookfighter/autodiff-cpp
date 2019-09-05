@@ -14,7 +14,7 @@ TEST_CASE("backward algorithmic differentiation")
     double eps = 1e-6;
     SECTION("add constant")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double c = 2;
 
@@ -30,7 +30,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("multiply constant")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double c = 2;
 
@@ -46,7 +46,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("divide constant")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double c = 2;
 
@@ -62,7 +62,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("divide by constant")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double c = 2;
 
@@ -78,7 +78,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("sine")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::sin(x.value());
         double gradExp = std::cos(x.value());
@@ -92,7 +92,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("arcus sine")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(0.5);
         double valExp = std::asin(x.value());
         double gradExp = 1 / std::sqrt(1 - x.value() * x.value());
@@ -106,7 +106,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("cosine")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::cos(x.value());
         double gradExp = -std::sin(x.value());
@@ -120,7 +120,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("arcus cosine")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(0.5);
         double valExp = std::acos(x.value());
         double gradExp = -1 / std::sqrt(1 - x.value() * x.value());
@@ -134,7 +134,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("tangens")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::tan(x.value());
         double c = std::cos(x.value());
@@ -149,7 +149,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("arcus tangens")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::atan(x.value());
         double gradExp = 1 / (1 + x.value() * x.value());
@@ -163,7 +163,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("arcus tangens 2")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         bwd::Double y(1);
         double valExp = std::atan2(y.value(), x.value());
@@ -182,7 +182,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("square root")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::sqrt(x.value());
         double gradExp = 0.5 / std::sqrt(x.value());
@@ -196,7 +196,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("exponential")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::exp(x.value());
         double gradExp = std::exp(x.value());
@@ -210,7 +210,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("power")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::pow(x.value(), 2.3);
         double gradExp = 2.3 * std::pow(x.value(), 1.3);
@@ -224,7 +224,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("abs")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(-2);
         double valExp = std::abs(x.value());
         double gradExp = 1;
@@ -238,7 +238,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("abs2")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(-2);
         double valExp = x.value() * x.value();
         double gradExp = 2 * x.value();
@@ -252,7 +252,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("log")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::log(x.value());
         double gradExp = 1 / x.value();
@@ -266,7 +266,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("log2")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         double valExp = std::log2(x.value());
         double gradExp = 1 / (x.value() * std::log(2));
@@ -353,7 +353,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("multiple variables")
     {
-        bwd::DerivativeMap<double> derivative;
+        bwd::Double::DerivativeMap derivative;
         bwd::Double x(3);
         bwd::Double y(2);
 

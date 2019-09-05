@@ -844,14 +844,37 @@ namespace bwd
     };
 
     template<typename Scalar>
-    class DerivativeMap;
-
-    template<typename Scalar>
     class Number
     {
     private:
         std::shared_ptr<Expression<Scalar>> expr_;
     public:
+        class DerivativeMap
+        {
+        private:
+            std::map<std::string, Scalar> map_;
+        public:
+            std::map<std::string, Scalar> &map()
+            {
+                return map_;
+            }
+
+            void clear()
+            {
+                map_.clear();
+            }
+
+            bool contains(const Number<Scalar> &value)
+            {
+                return map_.find(value.id()) != map_.end();
+            }
+
+            Scalar operator()(const Number<Scalar> &value) const
+            {
+                return map_.at(value.id());
+            }
+        };
+
         Number()
             : Number(0)
         { }
@@ -869,7 +892,7 @@ namespace bwd
             return expr_->value();
         }
 
-        void derivative(DerivativeMap<Scalar> &map) const
+        void derivative(DerivativeMap &map) const
         {
             map.clear();
             expr_->derivative(map.map(), 1);
@@ -997,28 +1020,6 @@ namespace bwd
         explicit operator Scalar() const
         {
             return value();
-        }
-    };
-
-    template<typename Scalar>
-    class DerivativeMap
-    {
-    private:
-        std::map<std::string, Scalar> map_;
-    public:
-        std::map<std::string, Scalar> &map()
-        {
-            return map_;
-        }
-
-        void clear()
-        {
-            map_.clear();
-        }
-
-        Scalar operator()(const Number<Scalar> &value) const
-        {
-            return map_.at(value.id());
         }
     };
 

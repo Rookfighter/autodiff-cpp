@@ -135,6 +135,49 @@ namespace bwd
     typedef Eigen::Matrix<Float, 3, 1> Vector3f;
     typedef Eigen::Matrix<Float, 4, 1> Vector4f;
     typedef Eigen::Matrix<Float, 5, 1> Vector5f;
+
+    template<typename Scalar, typename DerivedA, typename DerivedB>
+    inline void gradient(const Eigen::MatrixBase<DerivedA> &x,
+        const Number<Scalar> &f,
+        Eigen::MatrixBase<DerivedB> &grad)
+    {
+        assert(x.cols() == 1);
+        assert(grad.cols() == 1);
+        assert(grad.rows() == x.rows());
+
+        typename bwd::Number<Scalar>::DerivativeMap derivative;
+        f.derivative(derivative);
+
+        grad.setZero();
+        for(long int i = 0; i < x.rows(); ++i)
+        {
+            if(derivative.contains(x(i)))
+                grad(i) = derivative(x(i));
+        }
+    }
+
+    template<typename DerivedA, typename DerivedB, typename DerivedC>
+    inline void jacobian(const Eigen::MatrixBase<DerivedA> &x,
+        const Eigen::MatrixBase<DerivedB> &f,
+        Eigen::MatrixBase<DerivedC> &jac)
+    {
+        assert(x.cols() == 1);
+        assert(f.cols() == 1);
+        assert(jac.rows() == f.rows());
+        assert(jac.cols() == x.rows());
+
+        typename Eigen::MatrixBase<DerivedB>::Scalar::DerivativeMap derivative;
+        jac.setZero();
+        for(long int i = 0; i < f.rows(); ++i)
+        {
+            f(i).derivative(derivative);
+            for(long int j = 0; j < x.rows(); ++j)
+            {
+                if(derivative.contains(x(j)))
+                    jac(i, j) = derivative(x(j));
+            }
+        }
+    }
 }
 }
 
