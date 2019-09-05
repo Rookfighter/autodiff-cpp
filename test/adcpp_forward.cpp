@@ -23,7 +23,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::Double(c) + x;
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("multiply constant")
@@ -37,7 +37,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::Double(c) * x;
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("divide constant")
@@ -51,7 +51,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::Double(c) / x;
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("divide by constant")
@@ -65,7 +65,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = x / fwd::Double(c);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("sine")
@@ -77,7 +77,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::sin(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("arcus sine")
@@ -89,7 +89,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::asin(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("cosine")
@@ -101,7 +101,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::cos(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("arcus cosine")
@@ -113,7 +113,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::acos(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("tangens")
@@ -126,7 +126,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::tan(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("arcus tangens")
@@ -138,7 +138,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::atan(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("arcus tangens 2")
@@ -161,8 +161,8 @@ TEST_CASE("forward algorithmic differentiation")
 
         REQUIRE(Approx(valExp).margin(eps) == fx.value());
         REQUIRE(Approx(valExp).margin(eps) == fy.value());
-        REQUIRE(Approx(gradXExp).margin(eps) == fx.gradient());
-        REQUIRE(Approx(gradyExp).margin(eps) == fy.gradient());
+        REQUIRE(Approx(gradXExp).margin(eps) == fx.derivative());
+        REQUIRE(Approx(gradyExp).margin(eps) == fy.derivative());
     }
 
     SECTION("square root")
@@ -174,7 +174,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::sqrt(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("exponential")
@@ -186,7 +186,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::exp(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("power")
@@ -198,7 +198,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::pow(x, 2.3);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("abs")
@@ -210,7 +210,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::abs(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("abs2")
@@ -222,7 +222,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::abs2(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("log")
@@ -234,7 +234,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::log(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("log2")
@@ -246,7 +246,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double f = fwd::log2(x);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
     }
 
     SECTION("explicit cast")
@@ -260,7 +260,7 @@ TEST_CASE("forward algorithmic differentiation")
         x1 = static_cast<fwd::Double>(x2);
 
         REQUIRE(x1.value() == x2);
-        REQUIRE(x1.gradient() == 0);
+        REQUIRE(x1.derivative() == 0);
     }
 
     SECTION("implicit cast")
@@ -269,7 +269,7 @@ TEST_CASE("forward algorithmic differentiation")
         fwd::Double x1 = x2;
 
         REQUIRE(x1.value() == x2);
-        REQUIRE(x1.gradient() == 0);
+        REQUIRE(x1.derivative() == 0);
     }
 
     SECTION("equality")
@@ -341,7 +341,7 @@ TEST_CASE("forward algorithmic differentiation")
 
         REQUIRE(Approx(valExp).margin(eps) == fx.value());
         REQUIRE(Approx(valExp).margin(eps) == fy.value());
-        REQUIRE(Approx(gradXExp).margin(eps) == fx.gradient());
-        REQUIRE(Approx(gradYExp).margin(eps) == fy.gradient());
+        REQUIRE(Approx(gradXExp).margin(eps) == fx.derivative());
+        REQUIRE(Approx(gradYExp).margin(eps) == fy.derivative());
     }
 }

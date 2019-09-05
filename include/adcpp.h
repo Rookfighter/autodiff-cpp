@@ -24,23 +24,23 @@ namespace fwd
     {
     private:
         Scalar value_;
-        Scalar gradient_;
+        Scalar derivative_;
     public:
 
         Number()
-            : value_(0), gradient_(0)
+            : value_(0), derivative_(0)
         { }
 
         Number(const Scalar value)
-            : value_(value), gradient_(0)
+            : value_(value), derivative_(0)
         { }
 
-        Number(const Scalar value, const Scalar gradient)
-            : value_(value), gradient_(gradient)
+        Number(const Scalar value, const Scalar derivative)
+            : value_(value), derivative_(derivative)
         { }
 
         Number(const Number<Scalar> &rhs)
-            : value_(rhs.value_), gradient_(rhs.gradient_)
+            : value_(rhs.value_), derivative_(rhs.derivative_)
         { }
 
         ~Number()
@@ -51,15 +51,15 @@ namespace fwd
             return value_;
         }
 
-        Scalar gradient() const
+        Scalar derivative() const
         {
-            return gradient_;
+            return derivative_;
         }
 
         Number<Scalar> &operator=(const Number<Scalar> &rhs)
         {
             value_ = rhs.value_;
-            gradient_ = rhs.gradient_;
+            derivative_ = rhs.derivative_;
 
             return *this;
         }
@@ -67,7 +67,7 @@ namespace fwd
         Number<Scalar> &operator=(const Scalar rhs)
         {
             value_ = rhs;
-            gradient_ = 0;
+            derivative_ = 0;
 
             return *this;
         }
@@ -75,7 +75,7 @@ namespace fwd
         Number<Scalar> &operator+=(const Number<Scalar> &rhs)
         {
             value_ += rhs.value_;
-            gradient_ += rhs.gradient_;
+            derivative_ += rhs.derivative_;
 
             return *this;
         }
@@ -90,7 +90,7 @@ namespace fwd
 
         Number<Scalar> &operator*=(const Number<Scalar> &rhs)
         {
-            gradient_ = rhs.value_ * gradient_  + value_ * rhs.gradient_;
+            derivative_ = rhs.value_ * derivative_  + value_ * rhs.derivative_;
             value_ *= rhs.value_;
 
             return *this;
@@ -121,7 +121,7 @@ namespace fwd
 
         Number<Scalar> &operator/=(const Number<Scalar> &rhs)
         {
-            gradient_ = (gradient_ * rhs.value_ - rhs.gradient_ * value_) / (rhs.value_ * rhs.value_);
+            derivative_ = (derivative_ * rhs.value_ - rhs.derivative_ * value_) / (rhs.value_ * rhs.value_);
             value_ /= rhs.value_;
 
             return *this;
@@ -137,7 +137,7 @@ namespace fwd
 
         Number<Scalar> operator-() const
         {
-            return Number<Scalar>(-value_, -gradient_);
+            return Number<Scalar>(-value_, -derivative_);
         }
 
         bool operator==(const Number<Scalar> &rhs) const
@@ -180,7 +180,7 @@ namespace fwd
     template<typename Scalar>
     std::ostream& operator<<(std::ostream &lhs, const Number<Scalar> &rhs)
     {
-        lhs << '(' << rhs.value() << ',' << rhs.gradient() << ')';
+        lhs << '(' << rhs.value() << ',' << rhs.derivative() << ')';
 
         return lhs;
     }
@@ -241,32 +241,32 @@ namespace fwd
     Number<Scalar> sin(const Number<Scalar> &val)
     {
         Scalar value = std::sin(val.value());
-        Scalar gradient = val.gradient() * std::cos(val.value());
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * std::cos(val.value());
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> asin(const Number<Scalar> &val)
     {
         Scalar value = std::asin(val.value());
-        Scalar gradient = val.gradient() * 1 / std::sqrt(1 - val.value() * val.value());
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * 1 / std::sqrt(1 - val.value() * val.value());
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> cos(const Number<Scalar> &val)
     {
         Scalar value = std::cos(val.value());
-        Scalar gradient = val.gradient() * -std::sin(val.value());
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * -std::sin(val.value());
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> acos(const Number<Scalar> &val)
     {
         Scalar value = std::acos(val.value());
-        Scalar gradient = val.gradient() * -1 / std::sqrt(1 - val.value() * val.value());
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * -1 / std::sqrt(1 - val.value() * val.value());
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
@@ -274,17 +274,17 @@ namespace fwd
     {
         Scalar value = std::tan(val.value());
         Scalar c = std::cos(val.value());
-        Scalar gradient = val.gradient() * 1 / (c * c);
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * 1 / (c * c);
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> atan(const Number<Scalar> &val)
     {
         Scalar value = std::atan(val.value());
-        Scalar gradient = val.gradient() * 1 / (1 + val.value() * val.value());
+        Scalar derivative = val.derivative() * 1 / (1 + val.value() * val.value());
 
-        return Number<Scalar>(value, gradient);
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
@@ -292,42 +292,42 @@ namespace fwd
     {
         Scalar value = std::atan2(y.value(), x.value());
         Scalar denom = x.value() * x.value() + y.value() * y.value();
-        Scalar gradient = x.gradient() * y.value() / denom +
-            y.gradient() * x.value() / denom;
+        Scalar derivative = x.derivative() * y.value() / denom +
+            y.derivative() * x.value() / denom;
 
-        return Number<Scalar>(value, gradient);
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> exp(const Number<Scalar> &val)
     {
         Scalar value = std::exp(val.value());
-        Scalar gradient = val.gradient() * std::exp(val.value());
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * std::exp(val.value());
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> pow(const Number<Scalar> &val, const Scalar exponent)
     {
         Scalar value = std::pow(val.value(), exponent);
-        Scalar gradient = val.gradient() * exponent * std::pow(val.value(), exponent - 1);
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * exponent * std::pow(val.value(), exponent - 1);
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> pow(const Number<Scalar> &val, const int exponent)
     {
         Scalar value = std::pow(val.value(), exponent);
-        Scalar gradient = val.gradient() * exponent * std::pow(val.value(), exponent - 1);
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * exponent * std::pow(val.value(), exponent - 1);
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> sqrt(const Number<Scalar> &val)
     {
         Scalar value = std::sqrt(val.value());
-        Scalar gradient = val.gradient() / (2 * value);
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() / (2 * value);
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
@@ -351,7 +351,7 @@ namespace fwd
     template<typename Scalar>
     Number<Scalar> abs(const Number<Scalar> &val)
     {
-        return Number<Scalar>(std::abs(val.value()), std::abs(val.gradient()));
+        return Number<Scalar>(std::abs(val.value()), std::abs(val.derivative()));
     }
 
     template<typename Scalar>
@@ -364,16 +364,16 @@ namespace fwd
     Number<Scalar> log(const Number<Scalar> &val)
     {
         Scalar value = std::log(val.value());
-        Scalar gradient = val.gradient() * 1 / val.value();
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * 1 / val.value();
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
     Number<Scalar> log2(const Number<Scalar> &val)
     {
         Scalar value = std::log2(val.value());
-        Scalar gradient = val.gradient() * 1 / (val.value() * 0.6931471805599453);
-        return Number<Scalar>(value, gradient);
+        Scalar derivative = val.derivative() * 1 / (val.value() * 0.6931471805599453);
+        return Number<Scalar>(value, derivative);
     }
 
     template<typename Scalar>
@@ -411,7 +411,7 @@ namespace bwd
             return value_;
         }
 
-        virtual void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const = 0;
+        virtual void derivative(std::map<std::string, Scalar> &map, const Scalar weight) const = 0;
 
         const std::string &id() const
         {
@@ -453,7 +453,7 @@ namespace bwd
             : Expression<Scalar>(value)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
             const auto it = map.find(this->id());
@@ -472,7 +472,7 @@ namespace bwd
             : Expression<Scalar>(value)
         { }
 
-        void gradient(std::map<std::string, Scalar> &,
+        void derivative(std::map<std::string, Scalar> &,
             const Scalar) const override
         { }
     };
@@ -485,10 +485,10 @@ namespace bwd
             : UnaryExpression<Scalar>(-expr->value(), expr)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, -weight);
+            this->expr_->derivative(map, -weight);
         }
     };
 
@@ -503,10 +503,10 @@ namespace bwd
             weight_(std::cos(expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -521,10 +521,10 @@ namespace bwd
             weight_(1 / std::sqrt(1 - expr->value() * expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -539,10 +539,10 @@ namespace bwd
             weight_(-std::sin(expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -557,10 +557,10 @@ namespace bwd
             weight_(-1 / std::sqrt(1 - expr->value() * expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -578,10 +578,10 @@ namespace bwd
             weight_ = 1 / (c * c);
         }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -596,10 +596,10 @@ namespace bwd
             weight_(1 / (1 + expr->value() * expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -620,11 +620,11 @@ namespace bwd
             weightRhs_ = lhs->value() / denom;
         }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->lhs_->gradient(map, weight * weightLhs_);
-            this->rhs_->gradient(map, weight * weightRhs_);
+            this->lhs_->derivative(map, weight * weightLhs_);
+            this->rhs_->derivative(map, weight * weightRhs_);
         }
     };
 
@@ -639,10 +639,10 @@ namespace bwd
             weight_(this->value())
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -657,10 +657,10 @@ namespace bwd
             weight_(1 / (2 * this->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -672,10 +672,10 @@ namespace bwd
             : UnaryExpression<Scalar>(std::abs(expr->value()), expr)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, std::abs(weight));
+            this->expr_->derivative(map, std::abs(weight));
         }
     };
 
@@ -690,10 +690,10 @@ namespace bwd
             weight_(2 * expr->value())
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -708,10 +708,10 @@ namespace bwd
             weight_(1 / expr->value())
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -726,10 +726,10 @@ namespace bwd
             weight_(1 / (expr->value() * std::log(2)))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -745,10 +745,10 @@ namespace bwd
             weight_(exponent * std::pow(expr->value(), exponent - 1))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -764,10 +764,10 @@ namespace bwd
             weight_(exponent * std::pow(expr->value(), exponent - 1))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->expr_->gradient(map, weight * weight_);
+            this->expr_->derivative(map, weight * weight_);
         }
     };
 
@@ -780,11 +780,11 @@ namespace bwd
             : BinaryExpression<Scalar>(lhs->value() + rhs->value(), lhs, rhs)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->lhs_->gradient(map, weight);
-            this->rhs_->gradient(map, weight);
+            this->lhs_->derivative(map, weight);
+            this->rhs_->derivative(map, weight);
         }
     };
 
@@ -797,11 +797,11 @@ namespace bwd
             : BinaryExpression<Scalar>(lhs->value() - rhs->value(), lhs, rhs)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->lhs_->gradient(map, weight);
-            this->rhs_->gradient(map, -weight);
+            this->lhs_->derivative(map, weight);
+            this->rhs_->derivative(map, -weight);
         }
     };
 
@@ -814,11 +814,11 @@ namespace bwd
             : BinaryExpression<Scalar>(lhs->value() * rhs->value(), lhs, rhs)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->lhs_->gradient(map, this->rhs_->value() * weight);
-            this->rhs_->gradient(map, this->lhs_->value() * weight);
+            this->lhs_->derivative(map, this->rhs_->value() * weight);
+            this->rhs_->derivative(map, this->lhs_->value() * weight);
         }
     };
 
@@ -836,16 +836,16 @@ namespace bwd
             weightRhs_(-lhs->value() / (rhs->value() * rhs->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map,
+        void derivative(std::map<std::string, Scalar> &map,
             const Scalar weight) const override
         {
-            this->lhs_->gradient(map, weightLhs_ * weight);
-            this->rhs_->gradient(map, weightRhs_ * weight);
+            this->lhs_->derivative(map, weightLhs_ * weight);
+            this->rhs_->derivative(map, weightRhs_ * weight);
         }
     };
 
     template<typename Scalar>
-    class GradientMap;
+    class DerivativeMap;
 
     template<typename Scalar>
     class Number
@@ -870,10 +870,10 @@ namespace bwd
             return expr_->value();
         }
 
-        void gradient(GradientMap<Scalar> &map) const
+        void derivative(DerivativeMap<Scalar> &map) const
         {
             map.clear();
-            expr_->gradient(map.map(), 1);
+            expr_->derivative(map.map(), 1);
         }
 
         const std::string &id() const
@@ -1002,7 +1002,7 @@ namespace bwd
     };
 
     template<typename Scalar>
-    class GradientMap
+    class DerivativeMap
     {
     private:
         std::map<std::string, Scalar> map_;

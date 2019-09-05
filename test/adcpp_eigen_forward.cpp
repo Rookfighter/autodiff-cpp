@@ -37,10 +37,10 @@ TEST_CASE("Eigen forward algorithmic differentiation")
         REQUIRE(Approx(valExp(0)).margin(eps) == fy(0).value());
         REQUIRE(Approx(valExp(1)).margin(eps) == fy(1).value());
 
-        REQUIRE(Approx(jacExp(0, 0)).margin(eps) == fx(0).gradient());
-        REQUIRE(Approx(jacExp(1, 0)).margin(eps) == fx(1).gradient());
-        REQUIRE(Approx(jacExp(0, 1)).margin(eps) == fy(0).gradient());
-        REQUIRE(Approx(jacExp(1, 1)).margin(eps) == fy(1).gradient());
+        REQUIRE(Approx(jacExp(0, 0)).margin(eps) == fx(0).derivative());
+        REQUIRE(Approx(jacExp(1, 0)).margin(eps) == fx(1).derivative());
+        REQUIRE(Approx(jacExp(0, 1)).margin(eps) == fy(0).derivative());
+        REQUIRE(Approx(jacExp(1, 1)).margin(eps) == fy(1).derivative());
     }
 
     SECTION("singular value decomposition")
@@ -68,10 +68,10 @@ TEST_CASE("Eigen forward algorithmic differentiation")
         REQUIRE(Approx(valExp(2)).margin(eps) == resultAct(2).value());
         REQUIRE(Approx(valExp(3)).margin(eps) == resultAct(3).value());
 
-        REQUIRE(Approx(gradExp(0)).margin(eps) == resultAct(0).gradient());
-        REQUIRE(Approx(gradExp(1)).margin(eps) == resultAct(1).gradient());
-        REQUIRE(Approx(gradExp(2)).margin(eps) == resultAct(2).gradient());
-        REQUIRE(Approx(gradExp(3)).margin(eps) == resultAct(3).gradient());
+        REQUIRE(Approx(gradExp(0)).margin(eps) == resultAct(0).derivative());
+        REQUIRE(Approx(gradExp(1)).margin(eps) == resultAct(1).derivative());
+        REQUIRE(Approx(gradExp(2)).margin(eps) == resultAct(2).derivative());
+        REQUIRE(Approx(gradExp(3)).margin(eps) == resultAct(3).derivative());
     }
 
     SECTION("eigen value decomposition")
@@ -98,10 +98,10 @@ TEST_CASE("Eigen forward algorithmic differentiation")
         REQUIRE(Approx(eigvalsExp(2)).margin(eps) == eigvals(2).value());
         REQUIRE(Approx(eigvalsExp(3)).margin(eps) == eigvals(3).value());
 
-        REQUIRE(Approx(eiggradExp(0)).margin(eps) == eigvals(0).gradient());
-        REQUIRE(Approx(eiggradExp(1)).margin(eps) == eigvals(1).gradient());
-        REQUIRE(Approx(eiggradExp(2)).margin(eps) == eigvals(2).gradient());
-        REQUIRE(Approx(eiggradExp(3)).margin(eps) == eigvals(3).gradient());
+        REQUIRE(Approx(eiggradExp(0)).margin(eps) == eigvals(0).derivative());
+        REQUIRE(Approx(eiggradExp(1)).margin(eps) == eigvals(1).derivative());
+        REQUIRE(Approx(eiggradExp(2)).margin(eps) == eigvals(2).derivative());
+        REQUIRE(Approx(eiggradExp(3)).margin(eps) == eigvals(3).derivative());
     }
 
     SECTION("multiple outputs")
@@ -131,9 +131,9 @@ TEST_CASE("Eigen forward algorithmic differentiation")
         REQUIRE(Approx(valExp(0)).margin(eps) == fy(0).value());
         REQUIRE(Approx(valExp(1)).margin(eps) == fy(1).value());
 
-        REQUIRE(Approx(jacExp(0, 0)).margin(eps) == fx(0).gradient());
-        REQUIRE(Approx(jacExp(1, 0)).margin(eps) == fx(1).gradient());
-        REQUIRE(Approx(jacExp(0, 1)).margin(eps) == fy(0).gradient());
-        REQUIRE(Approx(jacExp(1, 1)).margin(eps) == fy(1).gradient());
+        REQUIRE(Approx(jacExp(0, 0)).margin(eps) == fx(0).derivative());
+        REQUIRE(Approx(jacExp(1, 0)).margin(eps) == fx(1).derivative());
+        REQUIRE(Approx(jacExp(0, 1)).margin(eps) == fy(0).derivative());
+        REQUIRE(Approx(jacExp(1, 1)).margin(eps) == fy(1).derivative());
     }
 }

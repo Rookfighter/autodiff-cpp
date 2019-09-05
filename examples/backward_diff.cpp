@@ -44,31 +44,31 @@ int main(const int argc, const char **argv)
     bwd::Double fA = myfuncA(x, y);
     bwd::Double fB = myfuncB(x, y);
 
-    // Set the gradient of the function value, of which we want to compute the
-    // gradient
-    bwd::GradientMap<double> gradient;
-    fA.gradient(gradient);
+    // Set the derivative of the function value, of which we want to compute the
+    // derivative
+    bwd::DerivativeMap<double> derivative;
+    fA.derivative(derivative);
 
     // Print the results.
-    // value() and gradient() are accessors for the gradient and computed value
+    // value() and derivative() are accessors for the derivative and computed value
     // of a function.
     // Call value on final function value to retrieve its result.
-    // Call gradient on the variable of which you want partial derivatives for
+    // Call derivative on the variable of which you want partial derivatives for
     // the function.
     std::cout << "Result (A):" << std::endl
         << "x = " << xval << ", y = " << yval << std::endl
         << "f = " << fA.value()
-        << ", fx = " << gradient(x)
-        << ", fy = " << gradient(y) << std::endl;
+        << ", fx = " << derivative(x)
+        << ", fy = " << derivative(y) << std::endl;
 
     // if you want calculate the derivative of a different function value, make
-    // sure to unset the gradient of the previous value.
-    fB.gradient(gradient);
+    // sure to unset the derivative of the previous value.
+    fB.derivative(derivative);
 
     std::cout << "Result (B):" << std::endl
         << "x = " << xval << ", y = " << yval << std::endl
         << "f = " << fB.value()
-        << ", fx = " << gradient(x)
-        << ", fy = " << gradient(y) << std::endl;
+        << ", fx = " << derivative(x)
+        << ", fy = " << derivative(y) << std::endl;
     return 0;
 }

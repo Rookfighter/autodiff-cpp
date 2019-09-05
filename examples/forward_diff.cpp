@@ -32,15 +32,15 @@ int main(const int argc, const char **argv)
 
     // Define x and y as adcpp Double
     // The first parameter defines its value and the second value defines its
-    // gradient.
-    // Set the gradient of x to 1, so we can calculate the partial derivative
+    // derivative.
+    // Set the derivative of x to 1, so we can calculate the partial derivative
     // of our function w.r.t. to x.
     fwd::Double x = fwd::Double(xval, 1);
     fwd::Double y = fwd::Double(yval, 0);
     // Evaluate the function with respect to x.
     fwd::Double fx = myfunc(x, y);
 
-    // Set the gradient of y to 1, so we can calculate the partial derivative
+    // Set the derivative of y to 1, so we can calculate the partial derivative
     // of our function w.r.t. to y.
     x = fwd::Double(xval, 0);
     y = fwd::Double(yval, 1);
@@ -48,12 +48,12 @@ int main(const int argc, const char **argv)
     fwd::Double fy = myfunc(x, y);
 
     // Print the results.
-    // value() and gradient() are accessors for the gradient and computed value
+    // value() and derivative() are accessors for the derivative and computed value
     // of a function.
     std::cout << "Result:" << std::endl
         << "x = " << xval << ", y = " << yval << std::endl
         << "f = " << fx.value()
-        << ", fx = " << fx.gradient()
-        << ", fy = " << fy.gradient() << std::endl;
+        << ", fx = " << fx.derivative()
+        << ", fy = " << fy.derivative() << std::endl;
     return 0;
 }
