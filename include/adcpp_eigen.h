@@ -141,15 +141,13 @@ namespace bwd
         const Number<Scalar> &f,
         Eigen::MatrixBase<DerivedB> &grad)
     {
-        assert(x.cols() == 1);
-        assert(grad.cols() == 1);
-        assert(grad.rows() == x.rows());
+        assert(grad.size() == x.size());
 
         typename bwd::Number<Scalar>::DerivativeMap derivative;
         f.derivative(derivative);
 
         grad.setZero();
-        for(long int i = 0; i < x.rows(); ++i)
+        for(long int i = 0; i < x.size(); ++i)
         {
             if(derivative.contains(x(i)))
                 grad(i) = derivative(x(i));
@@ -161,17 +159,15 @@ namespace bwd
         const Eigen::MatrixBase<DerivedB> &f,
         Eigen::MatrixBase<DerivedC> &jac)
     {
-        assert(x.cols() == 1);
-        assert(f.cols() == 1);
-        assert(jac.rows() == f.rows());
-        assert(jac.cols() == x.rows());
+        assert(jac.rows() == f.size());
+        assert(jac.cols() == x.size());
 
         typename Eigen::MatrixBase<DerivedB>::Scalar::DerivativeMap derivative;
         jac.setZero();
-        for(long int i = 0; i < f.rows(); ++i)
+        for(long int i = 0; i < f.size(); ++i)
         {
             f(i).derivative(derivative);
-            for(long int j = 0; j < x.rows(); ++j)
+            for(long int j = 0; j < x.size(); ++j)
             {
                 if(derivative.contains(x(j)))
                     jac(i, j) = derivative(x(j));

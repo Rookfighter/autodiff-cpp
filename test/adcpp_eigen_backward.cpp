@@ -9,7 +9,6 @@
 #include <Eigen/Geometry>
 #include <Eigen/Eigenvalues>
 #include "assert/eigen_require.h"
-#include <iostream>
 
 using namespace adcpp;
 
@@ -40,7 +39,6 @@ TEST_CASE("Eigen backward algorithmic differentiation")
 
     // SECTION("singular value decomposition")
     // {
-    //     std::cout << "SVD START" << std::endl;
     //     bwd::Matrix4d A;
     //     A << 2, 3, 11, 5,
     //         1, 1, 5, 2,
@@ -49,7 +47,6 @@ TEST_CASE("Eigen backward algorithmic differentiation")
     //     bwd::Vector4d b;
     //     b << 2, 1, -3, -3;
     //
-    //     bwd::Vector4d resultAct;
     //     Eigen::Vector4d valExp;
     //     Eigen::Vector4d gradExp;
     //     valExp << -0.5, -0.1875, 0.4375, -0.25;
@@ -57,41 +54,20 @@ TEST_CASE("Eigen backward algorithmic differentiation")
     //
     //     Eigen::JacobiSVD<bwd::Matrix4d, Eigen::FullPivHouseholderQRPreconditioner>
     //         solver(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
-    //     resultAct = solver.solve(b);
+    //     bwd::Vector4d f = solver.solve(b);
     //
-    //     std::cout << "SVD END" << std::endl;
+    //     Eigen::MatrixXd jacAct(4, 4);
+    //     std::cout << "jacobian" << std::endl;
+    //     jacobian(b, f, jacAct);
     //
-    //     A(0, 0).visits();
-    //     if(A(0, 0).hasCycle({}))
-    //         std::cout << "has cycle!" << std::endl;
-    //     else
-    //         std::cout << "no cycle!" << std::endl;
-    //
-    //     REQUIRE(Approx(valExp(0)).margin(eps) == resultAct(0).value());
-    //     REQUIRE(Approx(valExp(1)).margin(eps) == resultAct(1).value());
-    //     REQUIRE(Approx(valExp(2)).margin(eps) == resultAct(2).value());
-    //     REQUIRE(Approx(valExp(3)).margin(eps) == resultAct(3).value());
-    //
-    //     resultAct(0).setGradient(1);
-    //     REQUIRE(Approx(gradExp(0)).margin(eps) == A(0, 0).gradient());
-    //
-    //     resultAct(0).unsetGradient();
-    //     resultAct(1).setGradient(1);
-    //     REQUIRE(Approx(gradExp(1)).margin(eps) == A(0, 0).gradient());
-    //
-    //     resultAct(1).unsetGradient();
-    //     resultAct(2).setGradient(1);
-    //     REQUIRE(Approx(gradExp(2)).margin(eps) == A(0, 0).gradient());
-    //
-    //     resultAct(2).unsetGradient();
-    //     resultAct(3).setGradient(1);
-    //     REQUIRE(Approx(gradExp(3)).margin(eps) == A(0, 0).gradient());
+    //     std::cout << jacAct << std::endl;
+    //     REQUIRE_MATRIX_APPROX(valExp, f.template cast<double>(), eps);
     // }
 
     // SECTION("eigen value decomposition")
     // {
     //     bwd::Matrix4d A;
-    //     A << bwd::Double(2, 1), 3, 11, 5,
+    //     A << 2, 3, 11, 5,
     //         1, 1, 5, 2,
     //         2, 1, -3, 2,
     //         1, 1, -3, 4;
@@ -107,15 +83,11 @@ TEST_CASE("Eigen backward algorithmic differentiation")
     //     bwd::Vector4d eigvals = solver.eigenvalues().real();
     //     bwd::Matrix4d eigvecs = solver.eigenvectors().real();
     //
-    //     REQUIRE(Approx(eigvalsExp(0)).margin(eps) == eigvals(0).value());
-    //     REQUIRE(Approx(eigvalsExp(1)).margin(eps) == eigvals(1).value());
-    //     REQUIRE(Approx(eigvalsExp(2)).margin(eps) == eigvals(2).value());
-    //     REQUIRE(Approx(eigvalsExp(3)).margin(eps) == eigvals(3).value());
+    //     Eigen::MatrixXd jacAct(4, 4);
+    //     std::cout << "jacobian" << std::endl;
+    //     jacobian(b, eigvals, jacAct);
     //
-    //     REQUIRE(Approx(eiggradExp(0)).margin(eps) == eigvals(0).gradient());
-    //     REQUIRE(Approx(eiggradExp(1)).margin(eps) == eigvals(1).gradient());
-    //     REQUIRE(Approx(eiggradExp(2)).margin(eps) == eigvals(2).gradient());
-    //     REQUIRE(Approx(eiggradExp(3)).margin(eps) == eigvals(3).gradient());
+    //     REQUIRE_MATRIX_APPROX(eigvalsExp, eigvals.template cast<double>(), eps);
     // }
 
     SECTION("multiple outputs")
