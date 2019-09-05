@@ -44,16 +44,17 @@ int main(const int argc, const char **argv)
     bwd::Double fA = myfuncA(x, y);
     bwd::Double fB = myfuncB(x, y);
 
-    // Set the derivative of the function value, of which we want to compute the
-    // derivative
+    // Compute the derivative of all input parameters with respect to the
+    // given function
     bwd::Double::DerivativeMap derivative;
     fA.derivative(derivative);
 
     // Print the results.
-    // value() and derivative() are accessors for the derivative and computed value
-    // of a function.
+    // value() is an accessors for the computed value of a function.
+    // The derivative variable contains the derivative of different parameters
+    // w.r.t. the function.
     // Call value on final function value to retrieve its result.
-    // Call derivative on the variable of which you want partial derivatives for
+    // Use derivative on the variable of which you want partial derivatives for
     // the function.
     std::cout << "Result (A):" << std::endl
         << "x = " << xval << ", y = " << yval << std::endl
@@ -61,8 +62,8 @@ int main(const int argc, const char **argv)
         << ", fx = " << derivative(x)
         << ", fy = " << derivative(y) << std::endl;
 
-    // if you want calculate the derivative of a different function value, make
-    // sure to unset the derivative of the previous value.
+    // Calculate the derivatives for a different function.
+    // The derivative variable can be reused.
     fB.derivative(derivative);
 
     std::cout << "Result (B):" << std::endl
