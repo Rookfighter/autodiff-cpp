@@ -120,8 +120,9 @@ int main(const int argc, const char **argv)
 ### Backward Mode
 
 ```cpp
-#include <iostream>
 #include <adcpp.h>
+#include <iostream>
+#include <string>
 
 using namespace adcpp;
 
@@ -159,32 +160,33 @@ int main(const int argc, const char **argv)
     bwd::Double fA = myfuncA(x, y);
     bwd::Double fB = myfuncB(x, y);
 
-    // Set the gradient of the function value, of which we want to compute the
-    // gradient
-    fA.setGradient(1);
+    // Compute the derivative of all input parameters with respect to the
+    // given function
+    bwd::Double::DerivativeMap derivative;
+    fA.derivative(derivative);
 
     // Print the results.
-    // value() and gradient() are accessors for the gradient and computed value
-    // of a function.
+    // value() is an accessors for the computed value of a function.
+    // The derivative variable contains the derivative of different parameters
+    // w.r.t. the function.
     // Call value on final function value to retrieve its result.
-    // Call gradient on the variable of which you want partial derivatives for
+    // Use derivative on the variable of which you want partial derivatives for
     // the function.
     std::cout << "Result (A):" << std::endl
         << "x = " << xval << ", y = " << yval << std::endl
         << "f = " << fA.value()
-        << ", fx = " << x.gradient()
-        << ", fy = " << y.gradient() << std::endl;
+        << ", fx = " << derivative(x)
+        << ", fy = " << derivative(y) << std::endl;
 
-    // if you want calculate the derivative of a different function value, make
-    // sure to unset the gradient of the previous value.
-    fA.unsetGradient();
-    // Set the gradient of function value B.
-    fB.setGradient(1);
+    // Calculate the derivatives for a different function.
+    // The derivative variable can be reused.
+    fB.derivative(derivative);
+
     std::cout << "Result (B):" << std::endl
         << "x = " << xval << ", y = " << yval << std::endl
         << "f = " << fB.value()
-        << ", fx = " << x.gradient()
-        << ", fy = " << y.gradient() << std::endl;
+        << ", fx = " << derivative(x)
+        << ", fy = " << derivative(y) << std::endl;
     return 0;
 }
 ```
