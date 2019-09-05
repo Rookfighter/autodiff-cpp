@@ -41,10 +41,10 @@ calculate the full gradient / Jacobian.
 
 Both modes can compute the following arithmetic expressions:
 
-* addition (```òperator+```)
-* subtraction (```òperator-```)
-* multiplication (```òperator*```)
-* division (```òperator/```)
+* addition (```operator+```)
+* subtraction (```operator-```)
+* multiplication (```operator*```)
+* division (```operator/```)
 * ```sin```
 * ```cos```
 * ```tan```
