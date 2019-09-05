@@ -388,7 +388,7 @@ namespace fwd
 
 namespace bwd
 {
-    template<typename Scalar, typename T>
+    template<typename Scalar>
     class Expression
     {
     private:
@@ -400,18 +400,18 @@ namespace bwd
         {
             std::stringstream ss;
             ss << this;
-            id_ = ss.str;
+            id_ = ss.str();
         }
 
-        Scalar value() const
+        virtual ~Expression()
+        { }
+
+        virtual Scalar value() const
         {
             return value_;
         }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
-        {
-            static_cast<const T&>(*this).gradient(map, weight);
-        }
+        virtual void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const = 0;
 
         const std::string &id() const
         {
@@ -420,14 +420,41 @@ namespace bwd
     };
 
     template<typename Scalar>
-    class Parameter : public Expression<Scalar, Parameter<Scalar>>
+    class UnaryExpression : public Expression<Scalar>
+    {
+    protected:
+        std::shared_ptr<Expression<Scalar>> expr_;
+    public:
+        UnaryExpression(const Scalar value,
+            const std::shared_ptr<Expression<Scalar>> &expr)
+            : Expression<Scalar>(value), expr_(expr)
+        { }
+    };
+
+    template<typename Scalar>
+    class BinaryExpression : public Expression<Scalar>
+    {
+    protected:
+        std::shared_ptr<Expression<Scalar>> lhs_;
+        std::shared_ptr<Expression<Scalar>> rhs_;
+    public:
+        BinaryExpression(const Scalar value,
+            const std::shared_ptr<Expression<Scalar>> &lhs,
+            const std::shared_ptr<Expression<Scalar>> &rhs)
+            : Expression<Scalar>(value), lhs_(lhs), rhs_(rhs)
+        { }
+    };
+
+    template<typename Scalar>
+    class Parameter : public Expression<Scalar>
     {
     public:
         Parameter(const Scalar value)
-            : Expression<Scalar, Parameter<Scalar>>(value)
+            : Expression<Scalar>(value)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
             const auto it = map.find(this->id());
             if(it != map.end())
@@ -438,496 +465,454 @@ namespace bwd
     };
 
     template<typename Scalar>
-    class Constant : public Expression<Scalar, Constant<Scalar>>
+    class Constant : public Expression<Scalar>
     {
     public:
         Constant(const Scalar value)
-            : Expression<Scalar, Constant<Scalar>>(value)
+            : Expression<Scalar>(value)
         { }
 
-        void gradient(std::map<std::string, Scalar> &, const Scalar) const
+        void gradient(std::map<std::string, Scalar> &,
+            const Scalar) const override
         { }
     };
 
-    template<typename Scalar, typename T>
-    class Negate : public Expression<Scalar, Negate<Scalar, T>>
+    template<typename Scalar>
+    class Negate : public UnaryExpression<Scalar>
     {
-    private:
-        std::shared_ptr<T> expr_;
     public:
-        Negate(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Negate<Scalar, T>>(-expr->value()),
-            expr_(expr)
+        Negate(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(-expr->value(), expr)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, -weight);
+            this->expr_->gradient(map, -weight);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Sin : public Expression<Scalar, Sin<Scalar, T>>
+    template<typename Scalar>
+    class Sin : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Sin(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Sin<Scalar, T>>(std::sin(expr->value())),
-            expr_(expr),
-            weight_(std::cos(expr_->value()))
+        Sin(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::sin(expr->value()), expr),
+            weight_(std::cos(expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class ArcSin : public Expression<Scalar, ArcSin<Scalar, T>>
+    template<typename Scalar>
+    class ArcSin : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        ArcSin(const std::shared_ptr<T> expr)
-            : Expression<Scalar, ArcSin<Scalar, T>>(std::asin(expr->value())),
-            expr_(expr),
+        ArcSin(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::asin(expr->value()), expr),
             weight_(1 / std::sqrt(1 - expr->value() * expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Cos : public Expression<Scalar, Cos<Scalar, T>>
+    template<typename Scalar>
+    class Cos : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Cos(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Cos<Scalar, T>>(std::cos(expr->value())),
-            expr_(expr),
-            weight_(-std::sin(expr_->value()))
+        Cos(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::cos(expr->value()), expr),
+            weight_(-std::sin(expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class ArcCos : public Expression<Scalar, ArcCos<Scalar, T>>
+    template<typename Scalar>
+    class ArcCos : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        ArcCos(const std::shared_ptr<T> expr)
-            : Expression<Scalar, ArcCos<Scalar, T>>(std::acos(expr->value())),
-            expr_(expr),
+        ArcCos(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::acos(expr->value()), expr),
             weight_(-1 / std::sqrt(1 - expr->value() * expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Tan : public Expression<Scalar, Tan<Scalar, T>>
+    template<typename Scalar>
+    class Tan : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Tan(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Tan<Scalar, T>>(std::tan(expr->value())),
-            expr_(expr),
+        Tan(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::tan(expr->value()), expr),
             weight_()
         {
             Scalar c = std::cos(expr->value());
             weight_ = 1 / (c * c);
         }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class ArcTan : public Expression<Scalar, ArcTan<Scalar, T>>
+    template<typename Scalar>
+    class ArcTan : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        ArcTan(const std::shared_ptr<T> expr)
-            : Expression<Scalar, ArcTan<Scalar, T>>(std::atan(expr->value())),
-            expr_(expr),
+        ArcTan(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::atan(expr->value()), expr),
             weight_(1 / (1 + expr->value() * expr->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename L, typename R>
-    class ArcTan2 : public Expression<Scalar, ArcTan2<Scalar, L, R>>
+    template<typename Scalar>
+    class ArcTan2 : public BinaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<L> lhs_;
-        std::shared_ptr<R> rhs_;
         Scalar weightLhs_;
         Scalar weightRhs_;
     public:
-        ArcTan2(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
-            : Expression<Scalar, ArcTan2<Scalar, L, R>>(std::atan2(lhs->value(), rhs->value())),
-            lhs_(lhs), rhs_(rhs),
+        ArcTan2(const std::shared_ptr<Expression<Scalar>> &lhs,
+            const std::shared_ptr<Expression<Scalar>> &rhs)
+            : BinaryExpression<Scalar>(std::atan2(lhs->value(), rhs->value()), lhs, rhs),
             weightLhs_(), weightRhs_()
         {
-            Scalar denom = rhs->value() * rhs.value() + lhs.value() * lhs.value();
+            Scalar denom = rhs->value() * rhs->value() + lhs->value() * lhs->value();
             weightLhs_ = rhs->value() / denom;
             weightRhs_ = lhs->value() / denom;
         }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            lhs_->gradient(map, weight * weightLhs_);
-            rhs_->gradient(map, weight * weightRhs_);
+            this->lhs_->gradient(map, weight * weightLhs_);
+            this->rhs_->gradient(map, weight * weightRhs_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Exp : public Expression<Scalar, Exp<Scalar, T>>
+    template<typename Scalar>
+    class Exp : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Exp(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Exp<Scalar, T>>(std::exp(expr->value())),
-            expr_(expr),
+        Exp(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::exp(expr->value()), expr),
             weight_(this->value())
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Sqrt : public Expression<Scalar, Sqrt<Scalar, T>>
+    template<typename Scalar>
+    class Sqrt : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Sqrt(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Sqrt<Scalar, T>>(std::sqrt(expr->value())),
-            expr_(expr),
+        Sqrt(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::sqrt(expr->value()), expr),
             weight_(1 / (2 * this->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Abs : public Expression<Scalar, Abs<Scalar, T>>
+    template<typename Scalar>
+    class Abs : public UnaryExpression<Scalar>
     {
-    private:
-        std::shared_ptr<T> expr_;
     public:
-        Abs(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Abs<Scalar, T>>(std::abs(expr->value())),
-            expr_(expr)
+        Abs(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::abs(expr->value()), expr)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, std::abs(weight));
+            this->expr_->gradient(map, std::abs(weight));
         }
     };
 
-    template<typename Scalar, typename T>
-    class Abs2 : public Expression<Scalar, Abs2<Scalar, T>>
+    template<typename Scalar>
+    class Abs2 : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Abs2(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Abs2<Scalar, T>>(expr->value() * expr->value()),
-            expr_(expr),
-            weight_(expr->value() / 2)
+        Abs2(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(expr->value() * expr->value(), expr),
+            weight_(2 * expr->value())
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Log : public Expression<Scalar, Log<Scalar, T>>
+    template<typename Scalar>
+    class Log : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Log(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Log<Scalar, T>>(std::log(expr->value())),
-            expr_(expr),
+        Log(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::log(expr->value()), expr),
             weight_(1 / expr->value())
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Log2 : public Expression<Scalar, Log2<Scalar, T>>
+    template<typename Scalar>
+    class Log2 : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Log2(const std::shared_ptr<T> expr)
-            : Expression<Scalar, Log2<Scalar, T>>(std::log2(expr->value())),
-            expr_(expr),
+        Log2(const std::shared_ptr<Expression<Scalar>> &expr)
+            : UnaryExpression<Scalar>(std::log2(expr->value()), expr),
             weight_(1 / (expr->value() * std::log(2)))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class Pow : public Expression<Scalar, Pow<Scalar, T>>
+    template<typename Scalar>
+    class Pow : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        Pow(const std::shared_ptr<T> expr, const Scalar exponent)
-            : Expression<Scalar, Pow<Scalar, T>>(std::pow(expr->value(), exponent)),
-            expr_(expr),
+        Pow(const std::shared_ptr<Expression<Scalar>> &expr,
+            const Scalar exponent)
+            : UnaryExpression<Scalar>(std::pow(expr->value(), exponent), expr),
             weight_(exponent * std::pow(expr->value(), exponent - 1))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename T>
-    class PowInt : public Expression<Scalar, PowInt<Scalar, T>>
+    template<typename Scalar>
+    class PowInt : public UnaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<T> expr_;
         Scalar weight_;
     public:
-        PowInt(const std::shared_ptr<T> expr, const int exponent)
-            : Expression<Scalar, PowInt<Scalar, T>>(std::pow(expr->value(), exponent)),
-            expr_(expr),
+        PowInt(const std::shared_ptr<Expression<Scalar>> &expr,
+            const int exponent)
+            : UnaryExpression<Scalar>(std::pow(expr->value(), exponent), expr),
             weight_(exponent * std::pow(expr->value(), exponent - 1))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            expr_->gradient(map, weight * weight_);
+            this->expr_->gradient(map, weight * weight_);
         }
     };
 
-    template<typename Scalar, typename L, typename R>
-    class Add : public Expression<Scalar, Add<Scalar, L, R>>
+    template<typename Scalar>
+    class Add : public BinaryExpression<Scalar>
     {
-    private:
-        std::shared_ptr<L> lhs_;
-        std::shared_ptr<R> rhs_;
     public:
-        Add(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
-            : Expression<Scalar, Add<Scalar, L, R>>(lhs->value() + rhs->value()),
-            lhs_(lhs), rhs_(rhs)
+        Add(const std::shared_ptr<Expression<Scalar>> &lhs,
+            const std::shared_ptr<Expression<Scalar>> &rhs)
+            : BinaryExpression<Scalar>(lhs->value() + rhs->value(), lhs, rhs)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            lhs_->gradient(map, weight);
-            rhs_->gradient(map, weight);
+            this->lhs_->gradient(map, weight);
+            this->rhs_->gradient(map, weight);
         }
     };
 
-    template<typename Scalar, typename L, typename R>
-    class Subtract : public Expression<Scalar, Subtract<Scalar, L, R>>
+    template<typename Scalar>
+    class Subtract : public BinaryExpression<Scalar>
     {
-    private:
-        std::shared_ptr<L> lhs_;
-        std::shared_ptr<R> rhs_;
     public:
-        Subtract(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
-            : Expression<Scalar, Subtract<Scalar, L, R>>(lhs->value() - rhs->value()),
-            lhs_(lhs), rhs_(rhs)
+        Subtract(const std::shared_ptr<Expression<Scalar>> &lhs,
+            const std::shared_ptr<Expression<Scalar>> &rhs)
+            : BinaryExpression<Scalar>(lhs->value() - rhs->value(), lhs, rhs)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            lhs_->gradient(map, weight);
-            rhs_->gradient(map, -weight);
+            this->lhs_->gradient(map, weight);
+            this->rhs_->gradient(map, -weight);
         }
     };
 
-    template<typename Scalar, typename L, typename R>
-    class Multiply : public Expression<Scalar, Multiply<Scalar, L, R>>
+    template<typename Scalar>
+    class Multiply : public BinaryExpression<Scalar>
     {
-    private:
-        std::shared_ptr<L> lhs_;
-        std::shared_ptr<R> rhs_;
     public:
-        Multiply(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
-            : Expression<Scalar, Multiply<Scalar, L, R>>(lhs->value() * rhs->value()),
-            lhs_(lhs), rhs_(rhs)
+        Multiply(const std::shared_ptr<Expression<Scalar>> &lhs,
+            const std::shared_ptr<Expression<Scalar>> &rhs)
+            : BinaryExpression<Scalar>(lhs->value() * rhs->value(), lhs, rhs)
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            lhs_->gradient(map, rhs_->value() * weight);
-            rhs_->gradient(map, lhs_->value() * weight);
+            this->lhs_->gradient(map, this->rhs_->value() * weight);
+            this->rhs_->gradient(map, this->lhs_->value() * weight);
         }
     };
 
-    template<typename Scalar, typename L, typename R>
-    class Divide : public Expression<Scalar, Divide<Scalar, L, R>>
+    template<typename Scalar>
+    class Divide : public BinaryExpression<Scalar>
     {
     private:
-        std::shared_ptr<L> lhs_;
-        std::shared_ptr<R> rhs_;
         Scalar weightLhs_;
         Scalar weightRhs_;
     public:
-        Divide(const std::shared_ptr<L> lhs, const std::shared_ptr<R> rhs)
-            : Expression<Scalar, Divide<Scalar, L, R>>(lhs->value() / rhs->value()),
-            lhs_(lhs), rhs_(rhs),
+        Divide(const std::shared_ptr<Expression<Scalar>> &lhs,
+            const std::shared_ptr<Expression<Scalar>> &rhs)
+            : BinaryExpression<Scalar>(lhs->value() / rhs->value(), lhs, rhs),
             weightLhs_(1 / rhs->value()),
             weightRhs_(-lhs->value() / (rhs->value() * rhs->value()))
         { }
 
-        void gradient(std::map<std::string, Scalar> &map, const Scalar weight) const
+        void gradient(std::map<std::string, Scalar> &map,
+            const Scalar weight) const override
         {
-            lhs_->gradient(map, weightLhs_ * weight);
-            rhs_->gradient(map, weightRhs_ * weight);
+            this->lhs_->gradient(map, weightLhs_ * weight);
+            this->rhs_->gradient(map, weightRhs_ * weight);
         }
     };
+
+    template<typename Scalar>
+    class GradientMap;
 
     template<typename Scalar>
     class Number
     {
     private:
-        struct Node
-        {
-            Scalar weight;
-            Number<Scalar> var;
-
-            Node()
-                : Node(0, Number<Scalar>())
-            { }
-
-            Node(const Scalar weight, const Number<Scalar> &var)
-                : weight(weight), var(var)
-            { }
-
-        };
-
-        struct Data
-        {
-            typedef std::shared_ptr<Data> Ptr;
-
-            Data()
-                : Data(0)
-            { }
-
-            Data(const Scalar value)
-                : value(value), children(), gradient(0)
-            { }
-
-            Scalar value;
-            std::vector<Node> children;
-            Scalar gradient;
-        };
-
-        typename Data::Ptr data_;
+        std::shared_ptr<Expression<Scalar>> expr_;
     public:
         Number()
             : Number(0)
         { }
 
         Number(const Scalar value)
-            : data_(new Data(value))
+            : Number(std::make_shared<Parameter<Scalar>>(value))
         { }
 
-        Number(const Number<Scalar> &rhs)
-            : data_(rhs.data_)
-        { }
-
-        ~Number()
+        Number(const std::shared_ptr<Expression<Scalar>> &expr)
+            : expr_(expr)
         { }
 
         Scalar value() const
         {
-            return data_->value;
+            return expr_->value();
         }
 
-        Scalar gradient() const
+        void gradient(GradientMap<Scalar> &map) const
         {
-            if(data_->gradient != 0)
-                return data_->gradient;
-
-            Scalar grad = 0;
-            for(size_t i = 0; i < data_->children.size(); ++i)
-                grad += data_->children[i].weight * data_->children[i].var.gradient();
-
-            return grad;
+            map.clear();
+            expr_->gradient(map.map(), 1);
         }
 
-        void setGradient(const Scalar grad)
+        const std::string &id() const
         {
-            data_->gradient = grad;
+            return expr_->id();
         }
 
-        void addChild(const Scalar weight, const Number<Scalar> &val) const
+        const std::shared_ptr<Expression<Scalar>> &expression() const
         {
-            data_->children.push_back({weight, val});
-        }
-
-        Number<Scalar> &operator=(const Number<Scalar> &rhs)
-        {
-            data_ = rhs.data_;
-            return *this;
+            return expr_;
         }
 
         Number<Scalar> &operator=(const Scalar rhs)
         {
-            data_ = Data::Ptr(new Data(rhs));
+            *this = Number<Scalar>(value);
+            return *this;
+        }
+
+        Number<Scalar> &operator+=(const Scalar rhs)
+        {
+            *this = *this * rhs;
+            return *this;
+        }
+
+        Number<Scalar> &operator-=(const Scalar rhs)
+        {
+            *this = *this - rhs;
+            return *this;
+        }
+
+        Number<Scalar> &operator*=(const Scalar rhs)
+        {
+            *this = *this * rhs;
+            return *this;
+        }
+
+        Number<Scalar> &operator/=(const Scalar rhs)
+        {
+            *this = *this / rhs;
             return *this;
         }
 
@@ -939,32 +924,7 @@ namespace bwd
 
         Number<Scalar> operator+(const Number<Scalar> &rhs) const
         {
-            Number<Scalar> result;
-
-            result.data_->value = data_->value + rhs.data_->value;
-
-            addChild(1, result);
-            rhs.addChild(1, result);
-
-            return result;
-        }
-
-        Number<Scalar> &operator*=(const Number<Scalar> &rhs)
-        {
-            *this = *this * rhs;
-            return *this;
-        }
-
-        Number<Scalar> operator*(const Number<Scalar> &rhs) const
-        {
-            Number<Scalar> result;
-
-            result.data_->value = data_->value * rhs.data_->value;
-
-            addChild(rhs.data_->value, result);
-            rhs.addChild(data_->value, result);
-
-            return result;
+            return Number<Scalar>(std::make_shared<Add<Scalar>>(expr_, rhs.expr_));
         }
 
         Number<Scalar> &operator-=(const Number<Scalar> &rhs)
@@ -975,14 +935,18 @@ namespace bwd
 
         Number<Scalar> operator-(const Number<Scalar> &rhs) const
         {
-            Number<Scalar> result;
+            return Number<Scalar>(std::make_shared<Subtract<Scalar>>(expr_, rhs.expr_));
+        }
 
-            result.data_->value = data_->value - rhs.data_->value;
+        Number<Scalar> &operator*=(const Number<Scalar> &rhs)
+        {
+            *this = *this * rhs;
+            return *this;
+        }
 
-            addChild(1, result);
-            rhs.addChild(-1, result);
-
-            return result;
+        Number<Scalar> operator*(const Number<Scalar> &rhs) const
+        {
+            return Number<Scalar>(std::make_shared<Multiply<Scalar>>(expr_, rhs.expr_));
         }
 
         Number<Scalar> &operator/=(const Number<Scalar> &rhs)
@@ -993,27 +957,12 @@ namespace bwd
 
         Number<Scalar> operator/(const Number<Scalar> &rhs) const
         {
-            Number<Scalar> result;
-
-            result.data_->value = data_->value / rhs.data_->value;
-
-            Scalar gradLhs = 1 / rhs.data_->value;
-            Scalar gradRhs = -data_->value / (rhs.data_->value * rhs.data_->value);
-
-            addChild(gradLhs, result);
-            rhs.addChild(gradRhs, result);
-
-            return result;
+            return Number<Scalar>(std::make_shared<Divide<Scalar>>(expr_, rhs.expr_));
         }
 
         Number<Scalar> operator-() const
         {
-            Number<Scalar> result;
-
-            result.data_->value = -data_->value;
-            addChild(-1, result);
-
-            return result;
+            return Number<Scalar>(std::make_shared<Negate<Scalar>>(expr_));
         }
 
         bool operator==(const Number<Scalar> &rhs) const
@@ -1053,280 +1002,200 @@ namespace bwd
     };
 
     template<typename Scalar>
-    std::ostream& operator<<(std::ostream &lhs, const Number<Scalar> &rhs)
+    class GradientMap
+    {
+    private:
+        std::map<std::string, Scalar> map_;
+    public:
+        std::map<std::string, Scalar> &map()
+        {
+            return map_;
+        }
+
+        void clear()
+        {
+            map_.clear();
+        }
+
+        Scalar operator()(const Number<Scalar> &value) const
+        {
+            return map_.at(value.id());
+        }
+    };
+
+    template<typename Scalar>
+    inline Number<Scalar> constant(const Scalar value)
+    {
+        return Number<Scalar>(std::make_shared<Constant<Scalar>>(value));
+    }
+
+    template<typename Scalar>
+    inline std::ostream& operator<<(std::ostream &lhs, const Number<Scalar> &rhs)
     {
         lhs << rhs.value();
         return lhs;
     }
 
     template<typename Scalar>
-    Scalar &operator+=(Scalar &lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator+(const Number<Scalar> &lhs, const Scalar rhs)
     {
-        lhs += rhs.value();
-        return lhs;
+        return lhs + constant(rhs);
     }
 
     template<typename Scalar>
-    Number<Scalar> operator+(const Scalar lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator+(const Scalar lhs, const Number<Scalar> &rhs)
     {
-        return Number<Scalar>(lhs) + rhs;
+        return constant(lhs) + rhs;
     }
 
     template<typename Scalar>
-    Scalar &operator-=(Scalar &lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator-(const Number<Scalar> &lhs, const Scalar rhs)
     {
-        lhs -= rhs.value();
-        return lhs;
+        return lhs - constant(rhs);
     }
 
     template<typename Scalar>
-    Number<Scalar> operator-(const Scalar lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator-(const Scalar lhs, const Number<Scalar> &rhs)
     {
-        return Number<Scalar>(lhs) - rhs;
+        return constant(lhs) - rhs;
     }
 
     template<typename Scalar>
-    Scalar &operator*=(Scalar &lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator*(const Number<Scalar> &lhs, const Scalar rhs)
     {
-        lhs *= rhs.value();
-        return lhs;
+        return lhs * constant(rhs);
     }
 
     template<typename Scalar>
-    Number<Scalar> operator*(const Scalar lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator*(const Scalar lhs, const Number<Scalar> &rhs)
     {
-        return Number<Scalar>(lhs) * rhs;
+        return constant(lhs) * rhs;
     }
 
     template<typename Scalar>
-    Scalar &operator/=(Scalar &lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator/(const Number<Scalar> &lhs, const Scalar rhs)
     {
-        lhs /= rhs.value();
-        return lhs;
+        return lhs / constant(rhs);
     }
 
     template<typename Scalar>
-    Number<Scalar> operator/(const Scalar lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator/(const Scalar lhs, const Number<Scalar> &rhs)
     {
-        return Number<Scalar>(lhs) / rhs;
+        return constant(lhs) / rhs;
     }
 
     template<typename Scalar>
-    Number<Scalar> sin(const Number<Scalar> &val)
+    inline Number<Scalar> sin(const Number<Scalar> &value)
     {
-        Scalar value = std::sin(val.value());
-        Scalar gradient = std::cos(val.value());
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Sin<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> asin(const Number<Scalar> &val)
+    inline Number<Scalar> asin(const Number<Scalar> &value)
     {
-        Scalar value = std::asin(val.value());
-        Scalar gradient = 1 / std::sqrt(1 - val.value() * val.value());
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<ArcSin<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> cos(const Number<Scalar> &val)
+    inline Number<Scalar> cos(const Number<Scalar> &value)
     {
-        Scalar value = std::cos(val.value());
-        Scalar gradient = -std::sin(val.value());
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Cos<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> acos(const Number<Scalar> &val)
+    inline Number<Scalar> acos(const Number<Scalar> &value)
     {
-        Scalar value = std::acos(val.value());
-        Scalar gradient = -1 / std::sqrt(1 - val.value() * val.value());
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<ArcCos<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> tan(const Number<Scalar> &val)
+    inline Number<Scalar> tan(const Number<Scalar> &value)
     {
-        Scalar value = std::tan(val.value());
-        Scalar c = std::cos(val.value());
-        Scalar gradient = 1 / (c * c);
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Tan<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> atan(const Number<Scalar> &val)
+    inline Number<Scalar> atan(const Number<Scalar> &value)
     {
-        Scalar value = std::atan(val.value());
-        Scalar gradient = 1 / (1 + val.value() * val.value());
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<ArcTan<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> atan2(const Number<Scalar> &y, const Number<Scalar> &x)
+    inline Number<Scalar> atan2(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
     {
-        Scalar value = std::atan2(y.value(), x.value());
-        Scalar denom = x.value() * x.value() + y.value() * y.value();
-        Scalar gradRhs = y.value() / denom;
-        Scalar gradLhs = x.value() / denom;
-
-        Number<Scalar> result(value);
-
-        x.addChild(gradRhs, result);
-        y.addChild(gradLhs, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<ArcTan2<Scalar>>(lhs.expression(), rhs.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> exp(const Number<Scalar> &val)
+    inline Number<Scalar> exp(const Number<Scalar> &value)
     {
-        Scalar value = std::exp(val.value());
-        Scalar gradient = std::exp(val.value());
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Exp<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> pow(const Number<Scalar> &val, const Scalar exponent)
+    inline Number<Scalar> pow(const Number<Scalar> &value, const Scalar exponent)
     {
-        Scalar value = std::pow(val.value(), exponent);
-        Scalar gradient = exponent * std::pow(val.value(), exponent - 1);
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Pow<Scalar>>(value.expression(), exponent));
     }
 
     template<typename Scalar>
-    Number<Scalar> pow(const Number<Scalar> &val, const int exponent)
+    inline Number<Scalar> pow(const Number<Scalar> &value, const int exponent)
     {
-        Scalar value = std::pow(val.value(), exponent);
-        Scalar gradient = exponent * std::pow(val.value(), exponent - 1);
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<PowInt<Scalar>>(value.expression(), exponent));
     }
 
     template<typename Scalar>
-    Number<Scalar> sqrt(const Number<Scalar> &val)
+    inline Number<Scalar> sqrt(const Number<Scalar> &value)
     {
-        Scalar value = std::sqrt(val.value());
-        Scalar gradient = 1 / (2 * value);
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Sqrt<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    const Number<Scalar>& conj(const Number<Scalar> &val)
+    inline Number<Scalar> conj(const Number<Scalar> &value)
     {
-        return val;
+        return value;
     }
 
     template<typename Scalar>
-    const Number<Scalar>& real(const Number<Scalar> &val)
+    inline Number<Scalar> real(const Number<Scalar> &value)
     {
-        return val;
+        return value;
     }
 
     template<typename Scalar>
-    Number<Scalar> imag(const Number<Scalar> &val)
+    inline Number<Scalar> imag(const Number<Scalar> &)
     {
-        Number<Scalar> result(0);
-        val.addChild(0, result);
-        return result;
+        return constant(0);
     }
 
     template<typename Scalar>
-    Number<Scalar> abs(const Number<Scalar> &val)
+    inline Number<Scalar> abs(const Number<Scalar> &value)
     {
-        Scalar value = std::abs(val.value());
-        Scalar gradient = 1;
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Abs<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> abs2(const Number<Scalar> &val)
+    inline Number<Scalar> abs2(const Number<Scalar> &value)
     {
-        return val * val;
+        return Number<Scalar>(std::make_shared<Abs2<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> log(const Number<Scalar> &val)
+    inline Number<Scalar> log(const Number<Scalar> &value)
     {
-        Scalar value = std::log(val.value());
-        Scalar gradient = 1 / val.value();
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Log<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    Number<Scalar> log2(const Number<Scalar> &val)
+    inline Number<Scalar> log2(const Number<Scalar> &value)
     {
-        Scalar value = std::log2(val.value());
-        Scalar gradient = 1 / (val.value() * std::log(2));
-
-        Number<Scalar> result(value);
-
-        val.addChild(gradient, result);
-
-        return result;
+        return Number<Scalar>(std::make_shared<Log2<Scalar>>(value.expression()));
     }
 
     template<typename Scalar>
-    bool isfinite(const Number<Scalar> &val)
+    inline bool isfinite(const Number<Scalar> &value)
     {
-        return std::isfinite(val.value());
+        return std::isfinite(value.value());
     }
 
     typedef Number<double> Double;

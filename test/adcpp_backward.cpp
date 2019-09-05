@@ -14,6 +14,7 @@ TEST_CASE("backward algorithmic differentiation")
     double eps = 1e-6;
     SECTION("add constant")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double c = 2;
 
@@ -21,14 +22,15 @@ TEST_CASE("backward algorithmic differentiation")
         double gradExp = 1;
 
         bwd::Double f = bwd::Double(c) + x;
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("multiply constant")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double c = 2;
 
@@ -36,14 +38,15 @@ TEST_CASE("backward algorithmic differentiation")
         double gradExp = c;
 
         bwd::Double f = bwd::Double(c) * x;
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("divide constant")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double c = 2;
 
@@ -51,14 +54,15 @@ TEST_CASE("backward algorithmic differentiation")
         double gradExp = -c / (x.value() * x.value());
 
         bwd::Double f = bwd::Double(c) / x;
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("divide by constant")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double c = 2;
 
@@ -66,93 +70,100 @@ TEST_CASE("backward algorithmic differentiation")
         double gradExp = 1 / c;
 
         bwd::Double f = x / bwd::Double(c);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("sine")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::sin(x.value());
         double gradExp = std::cos(x.value());
 
         bwd::Double f = bwd::sin(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("arcus sine")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(0.5);
         double valExp = std::asin(x.value());
         double gradExp = 1 / std::sqrt(1 - x.value() * x.value());
 
         bwd::Double f = bwd::asin(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("cosine")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::cos(x.value());
         double gradExp = -std::sin(x.value());
 
         bwd::Double f = bwd::cos(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("arcus cosine")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(0.5);
         double valExp = std::acos(x.value());
         double gradExp = -1 / std::sqrt(1 - x.value() * x.value());
 
         bwd::Double f = bwd::acos(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("tangens")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::tan(x.value());
         double c = std::cos(x.value());
         double gradExp = 1 / (c * c);
 
         bwd::Double f = bwd::tan(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("arcus tangens")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::atan(x.value());
         double gradExp = 1 / (1 + x.value() * x.value());
 
         bwd::Double f = bwd::atan(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("arcus tangens 2")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         bwd::Double y(1);
         double valExp = std::atan2(y.value(), x.value());
@@ -162,102 +173,109 @@ TEST_CASE("backward algorithmic differentiation")
         double gradyExp = x.value() / denom;
 
         bwd::Double f = bwd::atan2(y, x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradXExp).margin(eps) == x.gradient());
-        REQUIRE(Approx(gradyExp).margin(eps) == y.gradient());
+        REQUIRE(Approx(gradXExp).margin(eps) == gradient(x));
+        REQUIRE(Approx(gradyExp).margin(eps) == gradient(y));
     }
 
     SECTION("square root")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::sqrt(x.value());
         double gradExp = 0.5 / std::sqrt(x.value());
 
         bwd::Double f = bwd::sqrt(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("exponential")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::exp(x.value());
         double gradExp = std::exp(x.value());
 
         bwd::Double f = bwd::exp(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("power")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::pow(x.value(), 2.3);
         double gradExp = 2.3 * std::pow(x.value(), 1.3);
 
         bwd::Double f = bwd::pow(x, 2.3);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("abs")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(-2);
         double valExp = std::abs(x.value());
         double gradExp = 1;
 
         bwd::Double f = bwd::abs(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("abs2")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(-2);
         double valExp = x.value() * x.value();
         double gradExp = 2 * x.value();
 
         bwd::Double f = bwd::abs2(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("log")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::log(x.value());
         double gradExp = 1 / x.value();
 
         bwd::Double f = bwd::log(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("log2")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         double valExp = std::log2(x.value());
         double gradExp = 1 / (x.value() * std::log(2));
 
         bwd::Double f = bwd::log2(x);
-        f.setGradient(1);
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == x.gradient());
+        REQUIRE(Approx(gradExp).margin(eps) == gradient(x));
     }
 
     SECTION("explicit cast")
@@ -271,7 +289,6 @@ TEST_CASE("backward algorithmic differentiation")
         x1 = static_cast<bwd::Double>(x2);
 
         REQUIRE(x1.value() == x2);
-        REQUIRE(x1.gradient() == 0);
     }
 
     SECTION("implicit cast")
@@ -280,7 +297,6 @@ TEST_CASE("backward algorithmic differentiation")
         bwd::Double x1 = x2;
 
         REQUIRE(x1.value() == x2);
-        REQUIRE(x1.gradient() == 0);
     }
 
     SECTION("equality")
@@ -337,6 +353,7 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("multiple variables")
     {
+        bwd::GradientMap<double> gradient;
         bwd::Double x(3);
         bwd::Double y(2);
 
@@ -345,11 +362,10 @@ TEST_CASE("backward algorithmic differentiation")
         double gradYExp = (1 / x.value()) * valExp;
 
         bwd::Double f = bwd::exp(x + y / x);
-        f.setGradient(1);
-
+        f.gradient(gradient);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradXExp).margin(eps) == x.gradient());
-        REQUIRE(Approx(gradYExp).margin(eps) == y.gradient());
+        REQUIRE(Approx(gradXExp).margin(eps) == gradient(x));
+        REQUIRE(Approx(gradYExp).margin(eps) == gradient(y));
     }
 }

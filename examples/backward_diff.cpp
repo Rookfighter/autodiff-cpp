@@ -46,7 +46,8 @@ int main(const int argc, const char **argv)
 
     // Set the gradient of the function value, of which we want to compute the
     // gradient
-    fA.setGradient(1);
+    bwd::GradientMap<double> gradient;
+    fA.gradient(gradient);
 
     // Print the results.
     // value() and gradient() are accessors for the gradient and computed value
@@ -57,18 +58,17 @@ int main(const int argc, const char **argv)
     std::cout << "Result (A):" << std::endl
         << "x = " << xval << ", y = " << yval << std::endl
         << "f = " << fA.value()
-        << ", fx = " << x.gradient()
-        << ", fy = " << y.gradient() << std::endl;
+        << ", fx = " << gradient(x)
+        << ", fy = " << gradient(y) << std::endl;
 
     // if you want calculate the derivative of a different function value, make
     // sure to unset the gradient of the previous value.
-    fA.setGradient(0);
-    // Set the gradient of function value B.
-    fB.setGradient(1);
+    fB.gradient(gradient);
+
     std::cout << "Result (B):" << std::endl
         << "x = " << xval << ", y = " << yval << std::endl
         << "f = " << fB.value()
-        << ", fx = " << x.gradient()
-        << ", fy = " << y.gradient() << std::endl;
+        << ", fx = " << gradient(x)
+        << ", fy = " << gradient(y) << std::endl;
     return 0;
 }
