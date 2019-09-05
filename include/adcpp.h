@@ -178,67 +178,66 @@ namespace fwd
     };
 
     template<typename Scalar>
-    std::ostream& operator<<(std::ostream &lhs, const Number<Scalar> &rhs)
+    inline std::ostream& operator<<(std::ostream &lhs, const Number<Scalar> &rhs)
     {
         lhs << '(' << rhs.value() << ',' << rhs.derivative() << ')';
-
         return lhs;
     }
 
     template<typename Scalar>
-    Scalar &operator+=(Scalar &lhs, const Number<Scalar> &rhs)
+    inline Scalar &operator+=(Scalar &lhs, const Number<Scalar> &rhs)
     {
         lhs += rhs.value();
         return lhs;
     }
 
     template<typename Scalar>
-    Number<Scalar> operator+(const Scalar lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator+(const Scalar lhs, const Number<Scalar> &rhs)
     {
         return Number<Scalar>(lhs) + rhs;
     }
 
     template<typename Scalar>
-    Scalar &operator-=(Scalar &lhs, const Number<Scalar> &rhs)
+    inline Scalar &operator-=(Scalar &lhs, const Number<Scalar> &rhs)
     {
         lhs -= rhs.value();
         return lhs;
     }
 
     template<typename Scalar>
-    Number<Scalar> operator-(const Scalar lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator-(const Scalar lhs, const Number<Scalar> &rhs)
     {
         return Number<Scalar>(lhs) - rhs;
     }
 
     template<typename Scalar>
-    Scalar &operator*=(Scalar &lhs, const Number<Scalar> &rhs)
+    inline Scalar &operator*=(Scalar &lhs, const Number<Scalar> &rhs)
     {
         lhs *= rhs.value();
         return lhs;
     }
 
     template<typename Scalar>
-    Number<Scalar> operator*(const Scalar lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator*(const Scalar lhs, const Number<Scalar> &rhs)
     {
         return Number<Scalar>(lhs) * rhs;
     }
 
     template<typename Scalar>
-    Scalar &operator/=(Scalar &lhs, const Number<Scalar> &rhs)
+    inline Scalar &operator/=(Scalar &lhs, const Number<Scalar> &rhs)
     {
         lhs /= rhs.value();
         return lhs;
     }
 
     template<typename Scalar>
-    Number<Scalar> operator/(const Scalar lhs, const Number<Scalar> &rhs)
+    inline Number<Scalar> operator/(const Scalar lhs, const Number<Scalar> &rhs)
     {
         return Number<Scalar>(lhs) / rhs;
     }
 
     template<typename Scalar>
-    Number<Scalar> sin(const Number<Scalar> &val)
+    inline Number<Scalar> sin(const Number<Scalar> &val)
     {
         Scalar value = std::sin(val.value());
         Scalar derivative = val.derivative() * std::cos(val.value());
@@ -246,7 +245,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> asin(const Number<Scalar> &val)
+    inline Number<Scalar> asin(const Number<Scalar> &val)
     {
         Scalar value = std::asin(val.value());
         Scalar derivative = val.derivative() * 1 / std::sqrt(1 - val.value() * val.value());
@@ -254,7 +253,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> cos(const Number<Scalar> &val)
+    inline Number<Scalar> cos(const Number<Scalar> &val)
     {
         Scalar value = std::cos(val.value());
         Scalar derivative = val.derivative() * -std::sin(val.value());
@@ -262,7 +261,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> acos(const Number<Scalar> &val)
+    inline Number<Scalar> acos(const Number<Scalar> &val)
     {
         Scalar value = std::acos(val.value());
         Scalar derivative = val.derivative() * -1 / std::sqrt(1 - val.value() * val.value());
@@ -270,7 +269,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> tan(const Number<Scalar> &val)
+    inline Number<Scalar> tan(const Number<Scalar> &val)
     {
         Scalar value = std::tan(val.value());
         Scalar c = std::cos(val.value());
@@ -279,7 +278,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> atan(const Number<Scalar> &val)
+    inline Number<Scalar> atan(const Number<Scalar> &val)
     {
         Scalar value = std::atan(val.value());
         Scalar derivative = val.derivative() * 1 / (1 + val.value() * val.value());
@@ -288,7 +287,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> atan2(const Number<Scalar> &y, const Number<Scalar> &x)
+    inline Number<Scalar> atan2(const Number<Scalar> &y, const Number<Scalar> &x)
     {
         Scalar value = std::atan2(y.value(), x.value());
         Scalar denom = x.value() * x.value() + y.value() * y.value();
@@ -299,7 +298,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> exp(const Number<Scalar> &val)
+    inline Number<Scalar> exp(const Number<Scalar> &val)
     {
         Scalar value = std::exp(val.value());
         Scalar derivative = val.derivative() * std::exp(val.value());
@@ -307,7 +306,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> pow(const Number<Scalar> &val, const Scalar exponent)
+    inline Number<Scalar> pow(const Number<Scalar> &val, const Scalar exponent)
     {
         Scalar value = std::pow(val.value(), exponent);
         Scalar derivative = val.derivative() * exponent * std::pow(val.value(), exponent - 1);
@@ -315,7 +314,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> pow(const Number<Scalar> &val, const int exponent)
+    inline Number<Scalar> pow(const Number<Scalar> &val, const int exponent)
     {
         Scalar value = std::pow(val.value(), exponent);
         Scalar derivative = val.derivative() * exponent * std::pow(val.value(), exponent - 1);
@@ -323,7 +322,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> sqrt(const Number<Scalar> &val)
+    inline Number<Scalar> sqrt(const Number<Scalar> &val)
     {
         Scalar value = std::sqrt(val.value());
         Scalar derivative = val.derivative() / (2 * value);
@@ -331,37 +330,37 @@ namespace fwd
     }
 
     template<typename Scalar>
-    const Number<Scalar>& conj(const Number<Scalar> &val)
+    inline Number<Scalar> conj(const Number<Scalar> &val)
     {
         return val;
     }
 
     template<typename Scalar>
-    const Number<Scalar>& real(const Number<Scalar> &val)
+    inline Number<Scalar> real(const Number<Scalar> &val)
     {
         return val;
     }
 
     template<typename Scalar>
-    Number<Scalar> imag(const Number<Scalar> &val)
+    inline Number<Scalar> imag(const Number<Scalar> &val)
     {
         return Number<Scalar>(0, 0);
     }
 
     template<typename Scalar>
-    Number<Scalar> abs(const Number<Scalar> &val)
+    inline Number<Scalar> abs(const Number<Scalar> &val)
     {
         return Number<Scalar>(std::abs(val.value()), std::abs(val.derivative()));
     }
 
     template<typename Scalar>
-    Number<Scalar> abs2(const Number<Scalar> &val)
+    inline Number<Scalar> abs2(const Number<Scalar> &val)
     {
         return val * val;
     }
 
     template<typename Scalar>
-    Number<Scalar> log(const Number<Scalar> &val)
+    inline Number<Scalar> log(const Number<Scalar> &val)
     {
         Scalar value = std::log(val.value());
         Scalar derivative = val.derivative() * 1 / val.value();
@@ -369,7 +368,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    Number<Scalar> log2(const Number<Scalar> &val)
+    inline Number<Scalar> log2(const Number<Scalar> &val)
     {
         Scalar value = std::log2(val.value());
         Scalar derivative = val.derivative() * 1 / (val.value() * 0.6931471805599453);
@@ -377,7 +376,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    bool isfinite(const Number<Scalar> &val)
+    inline bool isfinite(const Number<Scalar> &val)
     {
         return std::isfinite(val.value());
     }
