@@ -74,35 +74,35 @@ TEST_CASE("Eigen forward algorithmic differentiation")
         REQUIRE(Approx(gradExp(3)).margin(eps) == resultAct(3).derivative());
     }
 
-    SECTION("eigen value decomposition")
-    {
-        fwd::Matrix4d A;
-        A << fwd::Double(2, 1), 3, 11, 5,
-            1, 1, 5, 2,
-            2, 1, -3, 2,
-            1, 1, -3, 4;
-        fwd::Vector4d b;
-        b << 2, 1, -3, -3;
-
-        Eigen::Vector4d eigvalsExp;
-        eigvalsExp << 7.27048, -5.64984, -0.291657, 2.67103;
-        Eigen::Vector4d eiggradExp;
-        eiggradExp <<  0.536189,  0.463811, 0, 0;
-
-        Eigen::EigenSolver<fwd::Matrix4d> solver(A);
-        fwd::Vector4d eigvals = solver.eigenvalues().real();
-        fwd::Matrix4d eigvecs = solver.eigenvectors().real();
-
-        REQUIRE(Approx(eigvalsExp(0)).margin(eps) == eigvals(0).value());
-        REQUIRE(Approx(eigvalsExp(1)).margin(eps) == eigvals(1).value());
-        REQUIRE(Approx(eigvalsExp(2)).margin(eps) == eigvals(2).value());
-        REQUIRE(Approx(eigvalsExp(3)).margin(eps) == eigvals(3).value());
-
-        REQUIRE(Approx(eiggradExp(0)).margin(eps) == eigvals(0).derivative());
-        REQUIRE(Approx(eiggradExp(1)).margin(eps) == eigvals(1).derivative());
-        REQUIRE(Approx(eiggradExp(2)).margin(eps) == eigvals(2).derivative());
-        REQUIRE(Approx(eiggradExp(3)).margin(eps) == eigvals(3).derivative());
-    }
+    // SECTION("eigen value decomposition")
+    // {
+    //     fwd::Matrix4d A;
+    //     A << fwd::Double(2, 1), 3, 11, 5,
+    //         1, 1, 5, 2,
+    //         2, 1, -3, 2,
+    //         1, 1, -3, 4;
+    //     fwd::Vector4d b;
+    //     b << 2, 1, -3, -3;
+    //
+    //     Eigen::Vector4d eigvalsExp;
+    //     eigvalsExp << 7.27048, -5.64984, -0.291657, 2.67103;
+    //     Eigen::Vector4d eiggradExp;
+    //     eiggradExp <<  0.536189,  0.463811, 0, 0;
+    //
+    //     Eigen::EigenSolver<fwd::Matrix4d> solver(A);
+    //     fwd::Vector4d eigvals = solver.eigenvalues().real();
+    //     fwd::Matrix4d eigvecs = solver.eigenvectors().real();
+    //
+    //     REQUIRE(Approx(eigvalsExp(0)).margin(eps) == eigvals(0).value());
+    //     REQUIRE(Approx(eigvalsExp(1)).margin(eps) == eigvals(1).value());
+    //     REQUIRE(Approx(eigvalsExp(2)).margin(eps) == eigvals(2).value());
+    //     REQUIRE(Approx(eigvalsExp(3)).margin(eps) == eigvals(3).value());
+    //
+    //     REQUIRE(Approx(eiggradExp(0)).margin(eps) == eigvals(0).derivative());
+    //     REQUIRE(Approx(eiggradExp(1)).margin(eps) == eigvals(1).derivative());
+    //     REQUIRE(Approx(eiggradExp(2)).margin(eps) == eigvals(2).derivative());
+    //     REQUIRE(Approx(eiggradExp(3)).margin(eps) == eigvals(3).derivative());
+    // }
 
     SECTION("multiple outputs")
     {
