@@ -361,7 +361,7 @@ namespace fwd
     inline Number<Scalar> log2(const Number<Scalar> &val)
     {
         Scalar value = std::log2(val.value());
-        Scalar derivative = val.derivative() * 1 / (val.value() * 0.6931471805599453);
+        Scalar derivative = val.derivative() * 1 / (val.value() * static_cast<Scalar>(0.6931471805599453));
         return Number<Scalar>(value, derivative);
     }
 
