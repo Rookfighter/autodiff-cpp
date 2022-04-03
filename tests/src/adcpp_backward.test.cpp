@@ -9,19 +9,21 @@
 
 using namespace adcpp;
 
-TEST_CASE("backward algorithmic differentiation")
+TEMPLATE_TEST_CASE("backward algorithmic differentiation", "[backward]", float, double)
 {
-    double eps = 1e-6;
+    using Scalar = TestType;
+    using ADScalar = bwd::Number<Scalar>;
+    Scalar eps = 1e-6;
     SECTION("add constant")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double c = 2;
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar c = 2;
 
-        double valExp = 5;
-        double gradExp = 1;
+        Scalar valExp = 5;
+        Scalar gradExp = 1;
 
-        bwd::Double f = bwd::Double(c) + x;
+        ADScalar f = ADScalar(c) + x;
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -30,14 +32,14 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("multiply constant")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double c = 2;
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar c = 2;
 
-        double valExp = c * x.value();
-        double gradExp = c;
+        Scalar valExp = c * x.value();
+        Scalar gradExp = c;
 
-        bwd::Double f = bwd::Double(c) * x;
+        ADScalar f = ADScalar(c) * x;
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -46,14 +48,14 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("divide constant")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double c = 2;
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar c = 2;
 
-        double valExp = c / x.value();
-        double gradExp = -c / (x.value() * x.value());
+        Scalar valExp = c / x.value();
+        Scalar gradExp = -c / (x.value() * x.value());
 
-        bwd::Double f = bwd::Double(c) / x;
+        ADScalar f = ADScalar(c) / x;
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -62,14 +64,14 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("divide by constant")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double c = 2;
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar c = 2;
 
-        double valExp = x.value() / c;
-        double gradExp = 1 / c;
+        Scalar valExp = x.value() / c;
+        Scalar gradExp = 1 / c;
 
-        bwd::Double f = x / bwd::Double(c);
+        ADScalar f = x / ADScalar(c);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -78,12 +80,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("sine")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::sin(x.value());
-        double gradExp = std::cos(x.value());
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::sin(x.value());
+        Scalar gradExp = std::cos(x.value());
 
-        bwd::Double f = bwd::sin(x);
+        ADScalar f = bwd::sin(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -92,12 +94,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("arcus sine")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(0.5);
-        double valExp = std::asin(x.value());
-        double gradExp = 1 / std::sqrt(1 - x.value() * x.value());
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(0.5);
+        Scalar valExp = std::asin(x.value());
+        Scalar gradExp = 1 / std::sqrt(1 - x.value() * x.value());
 
-        bwd::Double f = bwd::asin(x);
+        ADScalar f = bwd::asin(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -106,12 +108,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("cosine")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::cos(x.value());
-        double gradExp = -std::sin(x.value());
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::cos(x.value());
+        Scalar gradExp = -std::sin(x.value());
 
-        bwd::Double f = bwd::cos(x);
+        ADScalar f = bwd::cos(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -120,12 +122,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("arcus cosine")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(0.5);
-        double valExp = std::acos(x.value());
-        double gradExp = -1 / std::sqrt(1 - x.value() * x.value());
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(0.5);
+        Scalar valExp = std::acos(x.value());
+        Scalar gradExp = -1 / std::sqrt(1 - x.value() * x.value());
 
-        bwd::Double f = bwd::acos(x);
+        ADScalar f = bwd::acos(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -134,13 +136,13 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("tangens")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::tan(x.value());
-        double c = std::cos(x.value());
-        double gradExp = 1 / (c * c);
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::tan(x.value());
+        Scalar c = std::cos(x.value());
+        Scalar gradExp = 1 / (c * c);
 
-        bwd::Double f = bwd::tan(x);
+        ADScalar f = bwd::tan(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -149,12 +151,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("arcus tangens")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::atan(x.value());
-        double gradExp = 1 / (1 + x.value() * x.value());
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::atan(x.value());
+        Scalar gradExp = 1 / (1 + x.value() * x.value());
 
-        bwd::Double f = bwd::atan(x);
+        ADScalar f = bwd::atan(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -163,16 +165,16 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("arcus tangens 2")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        bwd::Double y(1);
-        double valExp = std::atan2(y.value(), x.value());
-        double denom = y.value() * y.value() + x.value() * x.value();
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        ADScalar y(1);
+        Scalar valExp = std::atan2(y.value(), x.value());
+        Scalar denom = y.value() * y.value() + x.value() * x.value();
 
-        double gradXExp = y.value() / denom;
-        double gradyExp = x.value() / denom;
+        Scalar gradXExp = y.value() / denom;
+        Scalar gradyExp = x.value() / denom;
 
-        bwd::Double f = bwd::atan2(y, x);
+        ADScalar f = bwd::atan2(y, x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -182,12 +184,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("square root")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::sqrt(x.value());
-        double gradExp = 0.5 / std::sqrt(x.value());
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::sqrt(x.value());
+        Scalar gradExp = 0.5 / std::sqrt(x.value());
 
-        bwd::Double f = bwd::sqrt(x);
+        ADScalar f = bwd::sqrt(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -196,12 +198,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("exponential")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::exp(x.value());
-        double gradExp = std::exp(x.value());
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::exp(x.value());
+        Scalar gradExp = std::exp(x.value());
 
-        bwd::Double f = bwd::exp(x);
+        ADScalar f = bwd::exp(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -210,12 +212,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("power")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::pow(x.value(), 2.3);
-        double gradExp = 2.3 * std::pow(x.value(), 1.3);
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::pow(x.value(), 2.3);
+        Scalar gradExp = 2.3 * std::pow(x.value(), 1.3);
 
-        bwd::Double f = bwd::pow(x, 2.3);
+        ADScalar f = bwd::pow(x, 2.3);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -224,12 +226,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("abs")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(-2);
-        double valExp = std::abs(x.value());
-        double gradExp = 1;
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(-2);
+        Scalar valExp = std::abs(x.value());
+        Scalar gradExp = 1;
 
-        bwd::Double f = bwd::abs(x);
+        ADScalar f = bwd::abs(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -238,12 +240,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("abs2")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(-2);
-        double valExp = x.value() * x.value();
-        double gradExp = 2 * x.value();
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(-2);
+        Scalar valExp = x.value() * x.value();
+        Scalar gradExp = 2 * x.value();
 
-        bwd::Double f = bwd::abs2(x);
+        ADScalar f = bwd::abs2(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -252,12 +254,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("log")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::log(x.value());
-        double gradExp = 1 / x.value();
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::log(x.value());
+        Scalar gradExp = 1 / x.value();
 
-        bwd::Double f = bwd::log(x);
+        ADScalar f = bwd::log(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -266,12 +268,12 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("log2")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        double valExp = std::log2(x.value());
-        double gradExp = 1 / (x.value() * std::log(2));
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        Scalar valExp = std::log2(x.value());
+        Scalar gradExp = 1 / (x.value() * std::log(2));
 
-        bwd::Double f = bwd::log2(x);
+        ADScalar f = bwd::log2(x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
@@ -280,30 +282,30 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("explicit cast")
     {
-        bwd::Double x1(3);
-        double x2 = static_cast<double>(x1);
+        ADScalar x1(3);
+        Scalar x2 = static_cast<Scalar>(x1);
 
         REQUIRE(x1.value() == x2);
 
         x2 = 15;
-        x1 = static_cast<bwd::Double>(x2);
+        x1 = static_cast<ADScalar>(x2);
 
         REQUIRE(x1.value() == x2);
     }
 
     SECTION("implicit cast")
     {
-        double x2 = 15;
-        bwd::Double x1 = x2;
+        Scalar x2 = 15;
+        ADScalar x1 = x2;
 
         REQUIRE(x1.value() == x2);
     }
 
     SECTION("equality")
     {
-        bwd::Double x1(1);
-        bwd::Double x2(1);
-        bwd::Double x3(2);
+        ADScalar x1(1);
+        ADScalar x2(1);
+        ADScalar x3(2);
 
         REQUIRE(x1 == x2);
         REQUIRE(x1 != x3);
@@ -311,9 +313,9 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("less than")
     {
-        bwd::Double x1(-1);
-        bwd::Double x2(1);
-        bwd::Double x3(2);
+        ADScalar x1(-1);
+        ADScalar x2(1);
+        ADScalar x3(2);
 
         REQUIRE(x1 < x2);
         REQUIRE(!(x3 < x2));
@@ -321,9 +323,9 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("less equal than")
     {
-        bwd::Double x1(1);
-        bwd::Double x2(1);
-        bwd::Double x3(2);
+        ADScalar x1(1);
+        ADScalar x2(1);
+        ADScalar x3(2);
 
         REQUIRE(x1 <= x2);
         REQUIRE(x2 <= x3);
@@ -332,9 +334,9 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("greater than")
     {
-        bwd::Double x1(-1);
-        bwd::Double x2(1);
-        bwd::Double x3(2);
+        ADScalar x1(-1);
+        ADScalar x2(1);
+        ADScalar x3(2);
 
         REQUIRE(x2 > x1);
         REQUIRE(!(x1 > x2));
@@ -342,9 +344,9 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("greater equal than")
     {
-        bwd::Double x1(1);
-        bwd::Double x2(1);
-        bwd::Double x3(2);
+        ADScalar x1(1);
+        ADScalar x2(1);
+        ADScalar x3(2);
 
         REQUIRE(x2 >= x1);
         REQUIRE(x3 >= x2);
@@ -353,15 +355,15 @@ TEST_CASE("backward algorithmic differentiation")
 
     SECTION("multiple variables")
     {
-        bwd::Double::DerivativeMap derivative;
-        bwd::Double x(3);
-        bwd::Double y(2);
+        typename ADScalar::DerivativeMap derivative;
+        ADScalar x(3);
+        ADScalar y(2);
 
-        double valExp = std::exp(x.value() + y.value() / x.value());
-        double gradXExp = (1 - y.value() / (x.value() * x.value())) * valExp;
-        double gradYExp = (1 / x.value()) * valExp;
+        Scalar valExp = std::exp(x.value() + y.value() / x.value());
+        Scalar gradXExp = (1 - y.value() / (x.value() * x.value())) * valExp;
+        Scalar gradYExp = (1 / x.value()) * valExp;
 
-        bwd::Double f = bwd::exp(x + y / x);
+        ADScalar f = bwd::exp(x + y / x);
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
