@@ -13,7 +13,7 @@ TEMPLATE_TEST_CASE("backward algorithmic differentiation", "[backward]", float, 
 {
     using Scalar = TestType;
     using ADScalar = bwd::Number<Scalar>;
-    Scalar eps = 1e-6;
+    Scalar eps = static_cast<Scalar>(1e-6);
 
     SECTION("construct")
     {
@@ -125,7 +125,7 @@ TEMPLATE_TEST_CASE("backward algorithmic differentiation", "[backward]", float, 
     SECTION("arcus sine")
     {
         typename ADScalar::DerivativeMap derivative;
-        ADScalar x(0.5);
+        ADScalar x(static_cast<Scalar>(0.5));
         Scalar valExp = std::asin(x.value());
         Scalar gradExp = 1 / std::sqrt(1 - x.value() * x.value());
 
@@ -153,7 +153,7 @@ TEMPLATE_TEST_CASE("backward algorithmic differentiation", "[backward]", float, 
     SECTION("arcus cosine")
     {
         typename ADScalar::DerivativeMap derivative;
-        ADScalar x(0.5);
+        ADScalar x(static_cast<Scalar>(0.5));
         Scalar valExp = std::acos(x.value());
         Scalar gradExp = -1 / std::sqrt(1 - x.value() * x.value());
 
@@ -217,7 +217,7 @@ TEMPLATE_TEST_CASE("backward algorithmic differentiation", "[backward]", float, 
         typename ADScalar::DerivativeMap derivative;
         ADScalar x(3);
         Scalar valExp = std::sqrt(x.value());
-        Scalar gradExp = 0.5 / std::sqrt(x.value());
+        Scalar gradExp = static_cast<Scalar>(0.5) / std::sqrt(x.value());
 
         ADScalar f = bwd::sqrt(x);
         f.derivative(derivative);
@@ -301,7 +301,7 @@ TEMPLATE_TEST_CASE("backward algorithmic differentiation", "[backward]", float, 
         typename ADScalar::DerivativeMap derivative;
         ADScalar x(3);
         Scalar valExp = std::log2(x.value());
-        Scalar gradExp = 1 / (x.value() * std::log(2));
+        Scalar gradExp = 1 / (x.value() * std::log(Scalar{2}));
 
         ADScalar f = bwd::log2(x);
         f.derivative(derivative);

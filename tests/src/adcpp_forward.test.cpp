@@ -13,7 +13,7 @@ TEMPLATE_TEST_CASE("forward algorithmic differentiation", "[forward]", float, do
 {
     using Scalar = TestType;
     using ADScalar = fwd::Number<Scalar>;
-    Scalar eps = 1e-6;
+    Scalar eps = static_cast<Scalar>(1e-6);
 
     SECTION("construct")
     {
@@ -212,7 +212,7 @@ TEMPLATE_TEST_CASE("forward algorithmic differentiation", "[forward]", float, do
     {
         ADScalar x(3, 1);
         Scalar valExp = std::sqrt(x.value());
-        Scalar gradExp = 0.5 / std::sqrt(x.value());
+        Scalar gradExp = static_cast<Scalar>(0.5) / std::sqrt(x.value());
 
         ADScalar f = fwd::sqrt(x);
 
@@ -284,7 +284,7 @@ TEMPLATE_TEST_CASE("forward algorithmic differentiation", "[forward]", float, do
     {
         ADScalar x(3, 1);
         Scalar valExp = std::log2(x.value());
-        Scalar gradExp = 1 / (x.value() * std::log(2));
+        Scalar gradExp = 1 / (x.value() * std::log(Scalar{2}));
 
         ADScalar f = fwd::log2(x);
 
