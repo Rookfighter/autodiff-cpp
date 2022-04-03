@@ -26,8 +26,8 @@ namespace fwd
         using Scalar = _Scalar;
 
         Number() = default;
-        Number(const Number &rhs) = default;
-        Number(Number &&rhs) = default;
+        Number(const Number<Scalar> &rhs) = default;
+        Number(Number<Scalar> &&rhs) = default;
         ~Number() = default;
 
         Number(const Scalar value)

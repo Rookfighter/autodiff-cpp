@@ -14,6 +14,47 @@ TEMPLATE_TEST_CASE("forward algorithmic differentiation", "[forward]", float, do
     using Scalar = TestType;
     using ADScalar = fwd::Number<Scalar>;
     Scalar eps = 1e-6;
+
+    SECTION("construct")
+    {
+        const auto defaultValue = ADScalar();
+        REQUIRE(Scalar{0} == defaultValue.value());
+        REQUIRE(Scalar{0} == defaultValue.derivative());
+
+        const auto fromScalar = ADScalar(Scalar{2});
+        REQUIRE(Scalar{2} == fromScalar.value());
+        REQUIRE(Scalar{0} == fromScalar.derivative());
+
+        const auto fromScalarDerivative = ADScalar(Scalar{3}, Scalar{2});
+        REQUIRE(Scalar{3} == fromScalarDerivative.value());
+        REQUIRE(Scalar{2} == fromScalarDerivative.derivative());
+
+        const auto copy = ADScalar(fromScalarDerivative);
+        REQUIRE(Scalar{3} == copy.value());
+        REQUIRE(Scalar{2} == copy.derivative());
+        REQUIRE(copy == fromScalarDerivative);
+    }
+
+    SECTION("assign")
+    {
+        auto fromScalar = ADScalar();
+        REQUIRE(Scalar{0} == fromScalar.value());
+        REQUIRE(Scalar{0} == fromScalar.derivative());
+
+        fromScalar = Scalar{2};
+        REQUIRE(Scalar{2} == fromScalar.value());
+        REQUIRE(Scalar{0} == fromScalar.derivative());
+
+        auto copy = ADScalar();
+        REQUIRE(Scalar{0} == copy.value());
+        REQUIRE(Scalar{0} == copy.derivative());
+
+        copy = fromScalar;
+        REQUIRE(Scalar{2} == copy.value());
+        REQUIRE(Scalar{0} == copy.derivative());
+        REQUIRE(copy == fromScalar);
+    }
+
     SECTION("add constant")
     {
         ADScalar x(3, 1);

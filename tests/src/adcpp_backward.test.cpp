@@ -14,6 +14,36 @@ TEMPLATE_TEST_CASE("backward algorithmic differentiation", "[backward]", float, 
     using Scalar = TestType;
     using ADScalar = bwd::Number<Scalar>;
     Scalar eps = 1e-6;
+
+    SECTION("construct")
+    {
+        const auto defaultValue = ADScalar();
+        REQUIRE(Scalar{0} == defaultValue.value());
+
+        const auto fromScalar = ADScalar(Scalar{2});
+        REQUIRE(Scalar{2} == fromScalar.value());
+
+        const auto copy = ADScalar(fromScalar);
+        REQUIRE(Scalar{2} == copy.value());
+        REQUIRE(copy == fromScalar);
+    }
+
+    SECTION("assign")
+    {
+        auto fromScalar = ADScalar();
+        REQUIRE(Scalar{0} == fromScalar.value());
+
+        fromScalar = Scalar{2};
+        REQUIRE(Scalar{2} == fromScalar.value());
+
+        auto copy = ADScalar();
+        REQUIRE(Scalar{0} == copy.value());
+
+        copy = fromScalar;
+        REQUIRE(Scalar{2} == copy.value());
+        REQUIRE(copy == fromScalar);
+    }
+
     SECTION("add constant")
     {
         typename ADScalar::DerivativeMap derivative;
