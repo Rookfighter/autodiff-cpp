@@ -1,12 +1,12 @@
-/* adcpp.h
+/* adcpp.hpp
  *
  *  Created on: 21 Aug 2019
  *      Author: Fabian Meyer
  *     License: MIT
  */
 
-#ifndef ADCPP_H_
-#define ADCPP_H_
+#ifndef ADCPP_ADCPP_HPP_
+#define ADCPP_ADCPP_HPP_
 
 #include <cmath>
 #include <memory>
@@ -19,31 +19,23 @@ namespace adcpp
 {
 namespace fwd
 {
-    template<typename Scalar>
+    template<typename _Scalar>
     class Number
     {
-    private:
-        Scalar value_;
-        Scalar derivative_;
     public:
+        using Scalar = _Scalar;
 
-        Number()
-            : value_(0), derivative_(0)
-        { }
+        Number() = default;
+        Number(const Number &rhs) = default;
+        Number(Number &&rhs) = default;
+        ~Number() = default;
 
         Number(const Scalar value)
-            : value_(value), derivative_(0)
+            : value_(value)
         { }
 
         Number(const Scalar value, const Scalar derivative)
             : value_(value), derivative_(derivative)
-        { }
-
-        Number(const Number<Scalar> &rhs)
-            : value_(rhs.value_), derivative_(rhs.derivative_)
-        { }
-
-        ~Number()
         { }
 
         Scalar value() const
@@ -56,15 +48,10 @@ namespace fwd
             return derivative_;
         }
 
-        Number<Scalar> &operator=(const Number<Scalar> &rhs)
-        {
-            value_ = rhs.value_;
-            derivative_ = rhs.derivative_;
+        Number<Scalar> &operator=(const Number<Scalar> &rhs) & = default;
+        Number<Scalar> &operator=(Number<Scalar> &&rhs) && = default;
 
-            return *this;
-        }
-
-        Number<Scalar> &operator=(const Scalar rhs)
+        Number<Scalar> &operator=(const Scalar rhs) &
         {
             value_ = rhs;
             derivative_ = 0;
@@ -175,6 +162,9 @@ namespace fwd
             return value();
         }
 
+    private:
+        Scalar value_{0};
+        Scalar derivative_{0};
     };
 
     template<typename Scalar>
@@ -843,12 +833,12 @@ namespace bwd
         }
     };
 
-    template<typename Scalar>
+    template<typename _Scalar>
     class Number
     {
-    private:
-        std::shared_ptr<Expression<Scalar>> expr_;
     public:
+        using Scalar = _Scalar;
+
         class DerivativeMap
         {
         private:
@@ -876,8 +866,12 @@ namespace bwd
         };
 
         Number()
-            : Number(0)
+            : Number(Scalar{0})
         { }
+
+        Number(const Number &rhs) = default;
+        Number(Number &&rhs) = default;
+        ~Number() = default;
 
         Number(const Scalar value)
             : Number(std::make_shared<Parameter<Scalar>>(value))
@@ -908,9 +902,12 @@ namespace bwd
             return expr_;
         }
 
-        Number<Scalar> &operator=(const Scalar rhs)
+        Number<Scalar> &operator=(const Number<Scalar> &rhs) & = default;
+        Number<Scalar> &operator=(Number<Scalar> &&rhs) && = default;
+
+        Number<Scalar> &operator=(const Scalar rhs) &
         {
-            *this = Number<Scalar>(value);
+            *this = Number<Scalar>(rhs);
             return *this;
         }
 
@@ -1021,6 +1018,9 @@ namespace bwd
         {
             return value();
         }
+
+    private:
+        std::shared_ptr<Expression<Scalar>> expr_;
     };
 
     template<typename Scalar>

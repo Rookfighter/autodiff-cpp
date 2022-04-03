@@ -1,11 +1,11 @@
-/* adcpp_eigen_forward.cpp
+/* adcpp_eigen_forward.test.cpp
  *
  *  Created on: 21 Aug 2019
  *      Author: Fabian Meyer
  */
 
 #include <catch2/catch.hpp>
-#include <adcpp_eigen.h>
+#include <adcpp/adcpp_eigen.hpp>
 #include <Eigen/Geometry>
 #include <Eigen/Eigenvalues>
 

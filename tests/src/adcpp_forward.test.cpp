@@ -1,11 +1,11 @@
-/* adcpp_forward.cpp
+/* adcpp_forward.test.cpp
  *
  *  Created on: 13 Feb 2018
  *      Author: Fabian Meyer
  */
 
 #include <catch2/catch.hpp>
-#include <adcpp.h>
+#include <adcpp/adcpp.hpp>
 
 using namespace adcpp;
 

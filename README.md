@@ -10,18 +10,24 @@ differentiation.
 
 ## Install
 
-Simply copy the header file into your project or install it using
-the CMake build system by typing
+Simply copy the single header file into your project and add it to your include path, then you are
+good to go.
+
+If `CMake` is your preferred tooling you can install the library with the following command:
 
 ```bash
 cd path/to/repo
-mkdir build
-cd build
-cmake ..
-make install
+cmake -B out/ -S .
+cmake --install out/
 ```
 
-You can use the CMake Find module in ```cmake/``` to find the installed header.
+You can then simply use the library in your `CMake` projects by finding the package:
+
+```cmake
+find_package(adcpp REQUIRED)
+add_executable(myproject main.cpp)
+target_link_libraries(myproject adcpp::adcpp)
+```
 
 ## Usage
 

@@ -3,32 +3,34 @@
 #     Author: Fabian Meyer
 # Created On: 15 Aug 2018
 
+
 cmake_minimum_required(VERSION 3.5)
 project(adcpp)
 
-SET(CMAKE_CXX_STANDARD 11)
+option(BUILD_TESTS "Enables if tests should be built" OFF)
+option(BUILD_EXAMPLES "Enables if examples should be built" OFF)
+
+SET(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-endif(CMAKE_COMPILER_IS_GNUCXX)
+if(MSVC)
+    # warning level 4 and all warnings as errors
+    add_compile_options(/W4 /WX /wd4127 /wd26495 /wd26451 /wd26812)
+else()
+    # lots of warnings and all warnings as errors
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()
 
 add_subdirectory(dep)
+add_subdirectory(include)
+add_subdirectory(cmake)
 
-include_directories(
-    "include"
-    ${EIGEN3_INCLUDE_DIR}
-)
-
-install(FILES "include/adcpp.h" "include/adcpp_eigen.h"
-    DESTINATION "include")
+if(${BUILD_TESTS})
+    # Compile tests
+    add_subdirectory(tests)
+endif(${BUILD_TESTS})
 
 if(${BUILD_EXAMPLES})
     # Compile examples
     add_subdirectory(examples)
 endif(${BUILD_EXAMPLES})
-
-if(${BUILD_TESTS})
-    # Compile examples
-    add_subdirectory(test)
-endif(${BUILD_TESTS})

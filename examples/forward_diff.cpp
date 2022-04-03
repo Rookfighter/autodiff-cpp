@@ -4,7 +4,7 @@
  *     Author: Fabian Meyer
  */
 
-#include <adcpp.h>
+#include <adcpp/adcpp.hpp>
 #include <iostream>
 #include <string>
 

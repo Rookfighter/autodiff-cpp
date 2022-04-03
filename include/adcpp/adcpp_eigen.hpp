@@ -1,84 +1,71 @@
-/* adcpp_eigen.h
+/* adcpp_eigen.hpp
  *
  *  Created on: 21 Aug 2019
  *      Author: Fabian Meyer
  *     License: MIT
  */
 
-#ifndef ADCPP_EIGEN_H_
-#define ADCPP_EIGEN_H_
+#ifndef ADCPP_ADCPP_EIGEN_HPP_
+#define ADCPP_ADCPP_EIGEN_HPP_
 
-#include <adcpp.h>
+#include <adcpp/adcpp.hpp>
 #include <Eigen/Core>
 
-namespace Eigen {
-    template<> struct NumTraits<adcpp::fwd::Double>
-        : NumTraits<double>
-    {
-        typedef adcpp::fwd::Double Real;
-        typedef adcpp::fwd::Double NonInteger;
-        typedef adcpp::fwd::Double Nested;
-        enum {
-            IsComplex = 0,
-            IsInteger = 0,
-            IsSigned = 1,
-            RequireInitialization = 1,
-            ReadCost = 1,
-            AddCost = 3,
-            MulCost = 3
-        };
-    };
+#define ADCPP_GEN_NUMTRAITS(T) \
+    template<>\
+    struct NumTraits<T>\
+    {\
+        using ValueType = T::Scalar;\
+        using Real = T;\
+        using NonInteger = T;\
+        using Nested = T;\
+        using Literal = T;\
+        enum {\
+            IsInteger = std::is_integral<ValueType>::value ? 1 : 0,\
+            IsSigned = std::is_signed<ValueType>::value ? 1 : 0,\
+            IsComplex = 0,\
+            RequireInitialization = 1,\
+            ReadCost = 1,\
+            AddCost = 3,\
+            MulCost = 3\
+        };\
+        static Real epsilon()\
+        {\
+            return Real(std::numeric_limits<ValueType>::epsilon());\
+        }\
+        static Real highest()\
+        {\
+            return Real(std::numeric_limits<ValueType>::max());\
+        }\
+        static Real lowest()\
+        {\
+            return Real(std::numeric_limits<ValueType>::min());\
+        }\
+        static Real min_exponent()\
+        {\
+            return Real(std::numeric_limits<ValueType>::min_exponent);\
+        }\
+        static Real max_exponent()\
+        {\
+            return Real(std::numeric_limits<ValueType>::max_exponent);\
+        }\
+        static Real digits()\
+        {\
+            return Real(std::numeric_limits<ValueType>::digits);\
+        }\
+        static Real digits10()\
+        {\
+            return Real(std::numeric_limits<ValueType>::digits10);\
+        }\
+    }
 
-    template<> struct NumTraits<adcpp::fwd::Float>
-        : NumTraits<float>
-    {
-        typedef adcpp::fwd::Float Real;
-        typedef adcpp::fwd::Float NonInteger;
-        typedef adcpp::fwd::Float Nested;
-        enum {
-            IsComplex = 0,
-            IsInteger = 0,
-            IsSigned = 1,
-            RequireInitialization = 1,
-            ReadCost = 1,
-            AddCost = 3,
-            MulCost = 3
-        };
-    };
+namespace Eigen
+{
+    ADCPP_GEN_NUMTRAITS(adcpp::fwd::Double);
+    ADCPP_GEN_NUMTRAITS(adcpp::fwd::Float);
 
-    template<> struct NumTraits<adcpp::bwd::Double>
-        : NumTraits<double>
-    {
-        typedef adcpp::bwd::Double Real;
-        typedef adcpp::bwd::Double NonInteger;
-        typedef adcpp::bwd::Double Nested;
-        enum {
-            IsComplex = 0,
-            IsInteger = 0,
-            IsSigned = 1,
-            RequireInitialization = 1,
-            ReadCost = 1,
-            AddCost = 3,
-            MulCost = 3
-        };
-    };
-
-    template<> struct NumTraits<adcpp::bwd::Float>
-        : NumTraits<float>
-    {
-        typedef adcpp::bwd::Float Real;
-        typedef adcpp::bwd::Float NonInteger;
-        typedef adcpp::bwd::Float Nested;
-        enum {
-            IsComplex = 0,
-            IsInteger = 0,
-            IsSigned = 1,
-            RequireInitialization = 1,
-            ReadCost = 1,
-            AddCost = 3,
-            MulCost = 3
-        };
-    };
+    ADCPP_GEN_NUMTRAITS(adcpp::bwd::Double);
+    ADCPP_GEN_NUMTRAITS(adcpp::bwd::Float);
 }
 
 namespace adcpp
