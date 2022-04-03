@@ -712,7 +712,7 @@ namespace bwd
     public:
         Log2(const std::shared_ptr<Expression<Scalar>> &expr)
             : UnaryExpression<Scalar>(std::log2(expr->value()), expr),
-            weight_(1 / (expr->value() * std::log(2)))
+            weight_(1 / (expr->value() * std::log(Scalar{2})))
         { }
 
         void derivative(std::map<std::string, Scalar> &map,
