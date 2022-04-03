@@ -1,9 +1,7 @@
 # autodiff-cpp
 
 ![Cpp11](https://img.shields.io/badge/C%2B%2B-11-blue.svg)
-![License](https://img.shields.io/packagist/l/doctrine/orm.svg)
-![Travis Status](https://travis-ci.org/Rookfighter/autodiff-cpp.svg?branch=master)
-![Appveyor Status](https://ci.appveyor.com/api/projects/status/uq730jam6he2o775?svg=true)
+![License](https://img.shields.io/packagist/l/doctrine/orm.svg)ue)
 
 ```autodiff-cpp``` is a single header-only C++ library for algorithmic (automatic)
 differentiation.
