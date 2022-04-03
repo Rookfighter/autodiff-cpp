@@ -194,10 +194,10 @@ TEMPLATE_TEST_CASE("forward algorithmic differentiation", "[forward]", float, do
     SECTION("power")
     {
         ADScalar x(3, 1);
-        Scalar valExp = std::pow(x.value(), 2.3);
-        Scalar gradExp = 2.3 * std::pow(x.value(), 1.3);
+        Scalar valExp = std::pow(x.value(), static_cast<Scalar>(2.3));
+        Scalar gradExp = static_cast<Scalar>(2.3) * std::pow(x.value(), static_cast<Scalar>(1.3));
 
-        ADScalar f = fwd::pow(x, 2.3);
+        ADScalar f = fwd::pow(x, static_cast<Scalar>(2.3));
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
         REQUIRE(Approx(gradExp).margin(eps) == f.derivative());

@@ -214,10 +214,10 @@ TEMPLATE_TEST_CASE("backward algorithmic differentiation", "[backward]", float, 
     {
         typename ADScalar::DerivativeMap derivative;
         ADScalar x(3);
-        Scalar valExp = std::pow(x.value(), 2.3);
-        Scalar gradExp = 2.3 * std::pow(x.value(), 1.3);
+        Scalar valExp = std::pow(x.value(), static_cast<Scalar>(2.3));
+        Scalar gradExp = static_cast<Scalar>(2.3) * std::pow(x.value(), static_cast<Scalar>(1.3));
 
-        ADScalar f = bwd::pow(x, 2.3);
+        ADScalar f = bwd::pow(x, static_cast<Scalar>(2.3));
         f.derivative(derivative);
 
         REQUIRE(Approx(valExp).margin(eps) == f.value());
