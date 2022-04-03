@@ -332,7 +332,7 @@ namespace fwd
     }
 
     template<typename Scalar>
-    inline Number<Scalar> imag(const Number<Scalar> &val)
+    inline Number<Scalar> imag(const Number<Scalar> &)
     {
         return Number<Scalar>(0, 0);
     }
