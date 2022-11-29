@@ -57,7 +57,7 @@ TEST_CASE("Eigen forward algorithmic differentiation")
         Eigen::Vector4d valExp;
         Eigen::Vector4d gradExp;
         valExp << -0.5, -0.1875, 0.4375, -0.25;
-        gradExp << -0.205283, 0.687338, -0.0722404, -0.117474;
+        gradExp << 0.4854542578, 0.7731714982, -0.2354739986, -0.3929625121;
 
         Eigen::JacobiSVD<fwd::Matrix4d, Eigen::FullPivHouseholderQRPreconditioner>
             solver(A, Eigen::ComputeFullU | Eigen::ComputeFullV);

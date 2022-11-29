@@ -63,10 +63,34 @@ TEMPLATE_TEST_CASE("forward algorithmic differentiation", "[forward]", float, do
         Scalar valExp = 5;
         Scalar gradExp = 1;
 
-        ADScalar f = ADScalar(c) + x;
+        ADScalar f1 = ADScalar(c) + x;
 
-        REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
+        REQUIRE(Approx(valExp).margin(eps) == f1.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f1.derivative());
+
+        ADScalar f2 = x + ADScalar(c);
+
+        REQUIRE(Approx(valExp).margin(eps) == f2.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f2.derivative());
+    }
+
+    SECTION("subtract constant")
+    {
+        ADScalar x(3, 1);
+        Scalar c = 2;
+
+        Scalar valExp = 1;
+        Scalar gradExp = 1;
+
+        ADScalar f1 = ADScalar(c) - x;
+
+        REQUIRE(Approx(-valExp).margin(eps) == f1.value());
+        REQUIRE(Approx(-gradExp).margin(eps) == f1.derivative());
+
+        ADScalar f2 = x - ADScalar(c);
+
+        REQUIRE(Approx(valExp).margin(eps) == f2.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f2.derivative());
     }
 
     SECTION("multiply constant")
@@ -77,10 +101,15 @@ TEMPLATE_TEST_CASE("forward algorithmic differentiation", "[forward]", float, do
         Scalar valExp = c * x.value();
         Scalar gradExp = c;
 
-        ADScalar f = ADScalar(c) * x;
+        ADScalar f1 = ADScalar(c) * x;
 
-        REQUIRE(Approx(valExp).margin(eps) == f.value());
-        REQUIRE(Approx(gradExp).margin(eps) == f.derivative());
+        REQUIRE(Approx(valExp).margin(eps) == f1.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f1.derivative());
+
+        ADScalar f2 = x * ADScalar(c);
+
+        REQUIRE(Approx(valExp).margin(eps) == f2.value());
+        REQUIRE(Approx(gradExp).margin(eps) == f2.derivative());
     }
 
     SECTION("divide constant")

@@ -19,6 +19,8 @@ namespace adcpp
 {
 namespace fwd
 {
+    /// @brief Generic number type for computing derivate in forward mode.
+    /// @tparam _Scalar internal scalar type
     template<typename _Scalar>
     class Number
     {
@@ -67,14 +69,6 @@ namespace fwd
             return *this;
         }
 
-        Number<Scalar> operator+(const Number<Scalar> &rhs) const
-        {
-            Number<Scalar> result(*this);
-            result += rhs;
-
-            return result;
-        }
-
         Number<Scalar> &operator*=(const Number<Scalar> &rhs)
         {
             derivative_ = rhs.value_ * derivative_  + value_ * rhs.derivative_;
@@ -83,27 +77,10 @@ namespace fwd
             return *this;
         }
 
-        Number<Scalar> operator*(const Number<Scalar> &rhs) const
-        {
-            Number<Scalar> result(*this);
-            result *= rhs;
-
-            return result;
-        }
-
         Number<Scalar> &operator-=(const Number<Scalar> &rhs)
         {
-            value_ += -rhs;
-
+            *this += -rhs;
             return *this;
-        }
-
-        Number<Scalar> operator-(const Number<Scalar> &rhs) const
-        {
-            Number<Scalar> result(*this);
-            result -= rhs;
-
-            return result;
         }
 
         Number<Scalar> &operator/=(const Number<Scalar> &rhs)
@@ -114,47 +91,9 @@ namespace fwd
             return *this;
         }
 
-        Number<Scalar> operator/(const Number<Scalar> &rhs) const
-        {
-            Number<Scalar> result(*this);
-            result /= rhs;
-
-            return result;
-        }
-
         Number<Scalar> operator-() const
         {
             return Number<Scalar>(-value_, -derivative_);
-        }
-
-        bool operator==(const Number<Scalar> &rhs) const
-        {
-            return value() == rhs.value();
-        }
-
-        bool operator!=(const Number<Scalar> &rhs) const
-        {
-            return value() != rhs.value();
-        }
-
-        bool operator<(const Number<Scalar> &rhs) const
-        {
-            return value() < rhs.value();
-        }
-
-        bool operator<=(const Number<Scalar> &rhs) const
-        {
-            return value() <= rhs.value();
-        }
-
-        bool operator>(const Number<Scalar> &rhs) const
-        {
-            return value() > rhs.value();
-        }
-
-        bool operator>=(const Number<Scalar> &rhs) const
-        {
-            return value() >= rhs.value();
         }
 
         explicit operator Scalar() const
@@ -166,6 +105,74 @@ namespace fwd
         Scalar value_{0};
         Scalar derivative_{0};
     };
+
+    template<typename Scalar>
+    inline Number<Scalar> operator+(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        auto result = lhs;
+        result += rhs;
+        return result;
+    }
+
+    template<typename Scalar>
+    inline Number<Scalar> operator-(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        auto result = lhs;
+        result -= rhs;
+        return result;
+    }
+
+    template<typename Scalar>
+    inline Number<Scalar> operator/(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        auto result = lhs;
+        result /= rhs;
+        return result;
+    }
+
+    template<typename Scalar>
+    inline Number<Scalar> operator*(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        auto result = lhs;
+        result *= rhs;
+        return result;
+    }
+
+    template<typename Scalar>
+    inline bool operator==(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        return lhs.value() == rhs.value();
+    }
+
+    template<typename Scalar>
+    inline bool operator!=(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        return lhs.value() != rhs.value();
+    }
+
+    template<typename Scalar>
+    inline bool operator<(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        return lhs.value() < rhs.value();
+    }
+
+    template<typename Scalar>
+    inline bool operator<=(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        return lhs.value() <= rhs.value();
+    }
+
+    template<typename Scalar>
+    inline bool operator>(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        return lhs.value() > rhs.value();
+    }
+
+    template<typename Scalar>
+    inline bool operator>=(const Number<Scalar> &lhs, const Number<Scalar> &rhs)
+    {
+        return lhs.value() >= rhs.value();
+    }
 
     template<typename Scalar>
     inline std::ostream& operator<<(std::ostream &lhs, const Number<Scalar> &rhs)
